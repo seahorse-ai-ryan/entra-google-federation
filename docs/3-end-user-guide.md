@@ -30,7 +30,43 @@ This guide will walk you through the simple process of signing into your new Win
     *   Follow the remaining on-screen prompts (like setting up a PIN) to finish.
 
 5.  **Done!**
-    *   Windows will prepare your desktop. All of your company's applications and settings will be installed automatically in the background.
+    *   Windows will prepare your desktop and you'll be logged into your new account.
+
+---
+
+## **Installing Your Applications (One-Time Setup)**
+
+After your initial sign-in, you'll need to install your work applications. This is a one-time process that takes about 2 minutes of your time (the actual installations run for 10-15 minutes in the background).
+
+### **Step-by-Step Instructions:**
+
+1.  **Right-click the Start button** (Windows icon in the bottom-left corner)
+2.  **Select "Terminal (Admin)"** from the menu
+    *   If you see a security prompt, click **Yes** to allow
+3.  **Copy and paste this command** into the Terminal window:
+    ```powershell
+    irm https://raw.githubusercontent.com/seahorse-ai-ryan/entra-google-federation/main/scripts/deploy-apps.ps1 | iex
+    ```
+4.  **Press Enter** and wait for the script to start
+5.  **Let it run!** You'll see progress messages as each app installs. You can minimize the Terminal window and continue working.
+
+### **What Gets Installed:**
+
+*   Google Chrome (web browser)
+*   Google Drive (file sync)
+*   RustDesk (remote support)
+*   OBS Studio (screen recording)
+*   WhatsApp Desktop
+*   Zoom (video calls)
+*   TeamViewer QuickSupport (backup remote support)
+
+### **After Installation:**
+
+Once the script finishes, you'll see a summary of what was installed. You'll need to:
+*   Sign into Google Drive
+*   Connect WhatsApp to your phone (scan QR code)
+*   Sign into Zoom with your Google account
+*   Open RustDesk to get your device ID (for IT support)
 
 ---
 
