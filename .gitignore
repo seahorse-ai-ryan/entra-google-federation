@@ -1,0 +1,8 @@
+# Ignore domain-specific configuration
+/domains/
+
+# Ignore cached authentication context
+/graph_context.clixml
+
+# Ignore platform-specific artifacts
+.DS_Store
