@@ -43,6 +43,25 @@ This guide will walk you through the simple process of signing into your new Win
 
 ---
 
+## **CRITICAL: Set Up Your PIN Immediately**
+
+**⚠️ You must set up a PIN before your screen locks, or you won't be able to unlock your device!**
+
+After completing the initial setup, immediately follow these steps:
+
+1.  Press `Windows + I` to open Settings
+2.  Go to `Accounts > Sign-in options`
+3.  Click **Windows Hello PIN** → **Set up**
+4.  You'll be prompted to verify your identity with Google (sign in again if needed)
+5.  Create a PIN (at least 4 digits, or follow the complexity requirements shown)
+6.  Click **OK** to save
+
+**Why is this required?** Windows Entra-joined devices need a local credential (PIN) for screen unlock and reboots. Your Google password only works during initial setup and specific policy-triggered events. The PIN is your day-to-day authentication method.
+
+**What PIN should I use?** Choose something memorable but secure. This PIN only works on this specific device and doesn't affect your Google password.
+
+---
+
 ## **Installing Your Applications (One-Time Setup)**
 
 After your initial sign-in, you'll need to install your work applications. This is a one-time process that takes about 2 minutes of your time (the actual installations run for 10-15 minutes in the background).
@@ -92,3 +111,7 @@ Once the script finishes, you'll see a summary of what was installed. You'll nee
     *   This setup only works with Windows Pro. Please contact IT for assistance with upgrading your device.
 *   **Error code 0x801c044f during PIN setup**
     *   This is the expected error! Simply click "Skip for now" to continue to Google sign-in.
+*   **I'm locked out after skipping PIN setup during OOBE**
+    *   If you skipped PIN setup and now can't unlock your device, you'll need to reset. Hold the power button to force shutdown, then restart and try logging in. If that doesn't work, you may need to reset Windows and start OOBE again (this time, set up the PIN immediately after Google authentication completes).
+*   **Can I sign in with my Google password instead of a PIN?**
+    *   No. After initial setup, Entra-joined devices require a local credential (PIN, password, or Windows Hello biometric). Your Google password only works during specific policy-triggered re-authentication events, not for everyday unlock.
