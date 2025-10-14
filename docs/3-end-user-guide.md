@@ -22,14 +22,23 @@ This guide will walk you through the simple process of signing into your new Win
 
 3.  **Sign In with Your Google Account:**
     *   When prompted to sign in, enter your full Google Workspace email address (e.g., `<your-name>@<your-domain.com>`).
-    *   Windows will automatically redirect you to the familiar Google sign-in page.
+    *   Click **Next**
+
+4.  **Expected: PIN Setup Error (This is Normal!)**
+    *   You'll see a screen that says **"Use Windows Hello with your account"**
+    *   Windows will attempt to set up a PIN and **will fail** with an error like "Something went wrong - We weren't able to set up your PIN."
+    *   **This is expected behavior!** The PIN setup happens before Google authentication completes.
+    *   **Click "Skip for now"** at the bottom of the error screen
+
+5.  **Google Sign-In:**
+    *   After skipping PIN setup, Windows will redirect you to the familiar Google sign-in page.
     *   Enter your Google password and complete any two-factor authentication steps (like a code from your phone).
 
-4.  **Windows Setup:**
+6.  **Windows Setup:**
     *   Once you've authenticated with Google, you'll be returned to the Windows setup process.
-    *   Follow the remaining on-screen prompts (like setting up a PIN) to finish.
+    *   Follow the remaining on-screen prompts to finish.
 
-5.  **Done!**
+7.  **Done!**
     *   Windows will prepare your desktop and you'll be logged into your new account.
 
 ---
@@ -72,9 +81,14 @@ Once the script finishes, you'll see a summary of what was installed. You'll nee
 
 ## **Troubleshooting**
 
-*   **I see a Microsoft password reset screen.**
+*   **The PIN setup screen doesn't offer a "Skip for now" button**
+    *   If you don't see the "Skip for now" option, try clicking "Try again" first. The setup will fail again and should then show the skip option.
+    *   Alternatively, if there's a "Cancel" or "Back" button, use that to return to the sign-in screen and re-enter your email.
+*   **I see a Microsoft password reset screen instead of Google.**
     *   This means the redirect to Google didn't work. Click "Back" and re-enter your full email address. Ensure you are typing it correctly. If the problem persists, contact IT.
 *   **I get an error that my user account doesn't exist.**
     *   This is a temporary issue where your account hasn't finished syncing. Please wait 10-15 minutes and try again. If you still can't log in, contact IT.
 *   **My laptop has Windows Home.**
     *   This setup only works with Windows Pro. Please contact IT for assistance with upgrading your device.
+*   **Error code 0x801c044f during PIN setup**
+    *   This is the expected error! Simply click "Skip for now" to continue to Google sign-in.
