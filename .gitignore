@@ -1,8 +1,5 @@
-# Ignore domain-specific configuration
+# Ignore domain-specific configuration (includes sensitive config files and auth context)
 /domains/
-
-# Ignore cached authentication context
-/graph_context.clixml
 
 # Ignore platform-specific artifacts
 .DS_Store

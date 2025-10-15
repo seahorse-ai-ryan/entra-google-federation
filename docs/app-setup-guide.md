@@ -1,34 +1,22 @@
-# Application Installation & Configuration Guide
+# Application Configuration Guide (Generic Template)
 
-This guide details the installation and essential configuration for work applications after completing Windows setup with your Google Workspace account.
+This is a **generic template** for application configuration. Your organization should create a customized version of this guide with your specific applications, server addresses, and support contacts.
 
-**Prerequisites:** You must have completed the [Windows Setup Guide](windows-setup-guide.md) first, including setting up your Windows Hello PIN.
+**For organizations using this project:** Create your own version of this guide in your `domains/[your-domain]/IT/` folder and store it in Google Drive alongside your Stage 2 installation script.
+
+**Prerequisites:** Users must have completed the [Windows Setup Guide](windows-setup-guide.md) and run both Stage 1 and Stage 2 installation scripts.
 
 ---
 
-## Automated Installation (Recommended)
+## Overview
 
-### Quick Install Command
+After running the Stage 1 and Stage 2 installation scripts, users will have applications installed but may need configuration guidance for:
+- Signing into accounts
+- Connecting to custom servers
+- Testing functionality
+- Creating shortcuts and pinning apps
 
-1.  **Right-click the Start button** (Windows icon in the bottom-left corner)
-2.  **Select "Terminal (Admin)"** from the menu
-    *   If you see a security prompt, click **Yes** to allow
-    *   The window title will say **"Administrator: Windows PowerShell"**
-3.  **Copy and paste this command:**
-    ```powershell
-    irm https://raw.githubusercontent.com/seahorse-ai-ryan/entra-google-federation/main/scripts/deploy-apps.ps1 | iex
-    ```
-4.  **Press Enter** and wait (10-15 minutes)
-
-### What Gets Installed Automatically
-
-✅ **Google Chrome** - Web browser  
-✅ **Google Drive** - File sync  
-✅ **RustDesk** - Remote support  
-✅ **OBS Studio** - Screen recording  
-✅ **WhatsApp Desktop** - Messaging  
-✅ **Zoom** - Video calls  
-✅ **TeamViewer QuickSupport** - Backup remote support  
+This template provides examples for common business applications. Customize it for your organization's specific needs.
 
 ---
 
@@ -39,7 +27,7 @@ After the automated installation completes, follow these steps to configure each
 ### 1. Google Chrome Setup
 
 1.  **Launch Chrome** from the Start menu or desktop
-2.  **Sign in** with your Google Workspace account
+2.  **Sign in** with your Google Workspace account (`@your-domain.com`)
 3.  **Sync settings** will automatically enable bookmarks and extensions
 4.  **Show Bookmarks Bar:** Press `Ctrl + Shift + B` to toggle the bookmarks bar
 5.  **Pin to Taskbar:** Right-click Chrome icon in taskbar → **Pin to taskbar**
@@ -48,49 +36,54 @@ After the automated installation completes, follow these steps to configure each
 ### 2. Google Drive Setup
 
 1.  **Launch Google Drive** (should auto-start after installation)
-2.  **Sign in** with your Google Workspace account (Google Single Sign-On)
+2.  **Sign in** with your Google Workspace account
 3.  **Folder Sync Configuration:**
     *   Click the Google Drive system tray icon (bottom-right corner)
     *   Click the gear icon → **Preferences**
     *   Under **"Google Drive"**, ensure your shared drives are visible
     *   Under **"My Computer"**, you can choose which folders to sync
-4.  **Pin Shared Drive to Quick Access:**
+4.  **Pin Shared Drive to Quick Access (if applicable):**
     *   Open File Explorer
-    *   Navigate to your shared drive (e.g., "Medical Assistant Shared Drive")
+    *   Navigate to your shared drive (e.g., "IT" or your team's shared drive)
     *   Right-click the folder → **Pin to Quick Access**
 
 **Chrome Extension Note:** If Chrome shows an error about an extension, enable the **"Application Launcher for Drive (by Google)"** extension.
 
 ### 3. RustDesk (Remote Support)
 
-**Automatic Configuration (if IT has set this up):**
+**Note:** This section assumes your organization uses RustDesk for remote support. Customize based on your remote support tool.
 
-If your organization has a custom RustDesk server, the deployment script will automatically configure it if you've signed into Google Drive first. The config file lives in your shared drive.
+**If Using a Custom RustDesk Server:**
+
+Your Stage 2 script can automatically configure RustDesk if you placed a `rustdesk-config.ps1` file in your Google Drive IT folder.
 
 1.  **Open RustDesk** from the Start menu
 2.  **Verify server connection:**
-    *   Check that the ID Server shows your team's server (e.g., not empty or "hbbs.rustdesk.com")
-    *   If it shows your team's server, you're all set!
-3.  **Note your ID number** - this is what support will use to connect to your device
+    *   Check that the ID Server shows your team's server (not "hbbs.rustdesk.com" or blank)
+    *   If configured correctly, you'll see your custom server address
+3.  **Note your RustDesk ID** - support will use this to connect to your device
+4.  **Share your ID with IT** via your organization's preferred method
 
 **If RustDesk is NOT configured:**
 
-The deployment script will show a warning that says "RustDesk config not loaded." This means:
+Users may need to manually configure the server:
 
-1.  **Option A (Automatic):** The config file might not be in your Google Drive yet. Contact IT.
-2.  **Option B (Manual):**
-    *   Click the **three dots** next to your ID → **Settings** → **Network**
-    *   Click **"Unlock network settings"**
-    *   Enter your team's server details (get from IT)
-    *   Click **"Apply"** and verify it says "Success"
+1.  Click the **three dots** next to your ID → **Settings** → **Network**
+2.  Click **"Unlock network settings"**
+3.  Enter your server details:
+    *   **ID Server:** `[your-server-address]`
+    *   **Relay Server:** `[your-server-address]`
+    *   **API Server:** `https://[your-server-address]`
+    *   **Key:** `[your-public-key]`
+4.  Click **"Apply"** and verify it says "Success"
 
 **For Standard Setup (No Custom Server):**
 
-If your organization doesn't use a custom RustDesk server:
+If using RustDesk's public servers:
 
 1.  **Open RustDesk** from the Start menu
-2.  **Note your ID number** - this is what support will use to connect to your device
-3.  **Test connection:** Have IT support test remote access using your ID
+2.  **Note your ID number** - support will use this to connect
+3.  **No configuration needed** - it works out of the box
 
 ### 4. OBS Studio (Screen Recording)
 
@@ -122,7 +115,9 @@ If your organization doesn't use a custom RustDesk server:
 
 **Recording Path Important:** The Captures folder inside Videos will auto-sync to Google Drive, so your recordings are automatically backed up.
 
-### 5. WhatsApp Desktop
+### 5. WhatsApp Desktop (Example)
+
+**Note:** This is an example. Not all organizations use WhatsApp for business communication.
 
 1.  **Open WhatsApp** from the Start menu
 2.  **Setup Options:**
@@ -133,18 +128,20 @@ If your organization doesn't use a custom RustDesk server:
         * Open WhatsApp on your phone → **Settings** → **Linked Devices** → **Link a Device**
 3.  **Test Camera Access:**
     *   Make a test video call to ensure camera/microphone permissions are enabled
-    *   **Dell Laptop Note:** Dell laptops have a physical camera shutter - slide it open to use the camera
+    *   **Laptop Camera Shutter:** Some laptops have a physical camera shutter - slide it open to use the camera
 4.  **Enable Auto-Start:**
     *   In WhatsApp, click the gear icon (⚙️) → **Settings**
     *   Enable **"Launch WhatsApp at login"**
 
-### 6. Zoom
+### 6. Zoom (Example)
+
+**Note:** Configuration guidance for Zoom as a common video conferencing tool.
 
 1.  **Launch Zoom** from the Start menu
 2.  **Sign In:**
     *   Click **"Sign In"**
     *   Select **"Sign in with Google"**
-    *   Choose your Google Workspace account
+    *   Choose your Google Workspace account (`@your-domain.com`)
 3.  **Test Audio/Video:**
     *   Click your profile icon → **Settings**
     *   Go to **Audio** → **Test Speaker** and **Test Microphone**
@@ -153,9 +150,14 @@ If your organization doesn't use a custom RustDesk server:
     *   Enable **"HD video"** (if your internet connection is fast)
     *   Enable **"Join audio by computer when joining a meeting"**
 
-### 7. TeamViewer QuickSupport
+### 7. Other Applications
 
-**No configuration needed.** This is a backup remote support tool. Just launch it when IT support requests it, and provide the ID number shown.
+**For additional applications in your Stage 2 script:**
+
+- Provide sign-in instructions (with Google SSO where available)
+- Note any custom server configurations needed
+- List essential settings to verify
+- Include testing steps
 
 ---
 
@@ -174,30 +176,33 @@ For quick access, create desktop shortcuts for frequently used apps:
 
 ## Pinning Apps to Taskbar
 
-For even quicker access:
+For quick access, pin frequently-used apps to your taskbar:
 
 1.  Open **Start Menu**
 2.  Find the app
 3.  **Right-click** → **Pin to taskbar**
 
-**Recommended taskbar pins:** Chrome, WhatsApp, Zoom, OBS Studio, Google Drive
+**Commonly pinned apps:** Chrome, Google Drive, video conferencing tools, communication apps
 
 ---
 
-## Recording Device Information
+## Recording Device Information for IT Support
 
-Your administrator may ask you to record your device information:
+IT may ask users to provide device information for tracking and support:
 
-1.  Press **Windows key**
-2.  Type **"About"**
-3.  Click **"About your PC"**
-4.  Note your **Device Name** (e.g., "DESKTOP-ABC1234")
-
-**For RustDesk:** Also note your RustDesk ID (visible in the RustDesk app).
+1.  **Windows Device Name:**
+    *   Press **Windows key**
+    *   Type **"About"**
+    *   Click **"About your PC"**
+    *   Note your **Device Name** (e.g., "DESKTOP-ABC1234")
+2.  **Remote Support ID:**
+    *   If using RustDesk, note your RustDesk ID (visible in the app)
+    *   If using TeamViewer, note your TeamViewer ID
+3.  **Share via your organization's preferred method** (email, messaging app, etc.)
 
 ---
 
-## Troubleshooting
+## Troubleshooting (Common Issues)
 
 ### Chrome won't sign in
 - Check your internet connection
@@ -207,35 +212,49 @@ Your administrator may ask you to record your device information:
 ### Google Drive not syncing
 - Check the Google Drive system tray icon for errors
 - Right-click the icon → **Settings** → **Preferences** → **Restart Google Drive**
+- Ensure you have sufficient storage space in your Google Workspace account
 
-### RustDesk can't connect
+### Remote support tool can't connect
 - Verify your internet connection
-- Check that IT has your correct RustDesk ID
-- Try restarting RustDesk
+- Ensure IT has your correct ID number
+- Try restarting the application
+- Check firewall settings (IT may need to whitelist the application)
 
-### OBS recordings not saving to Google Drive
-- Verify the recording path in **Settings** → **Output**
-- Make sure Google Drive is running and syncing
-- Check that the Captures folder exists: `C:\Users\[YourUsername]\Videos\Captures`
+### Application won't launch or crashes
+- Try restarting your computer
+- Check for Windows updates: **Settings** → **Windows Update**
+- Reinstall the application using Winget (contact IT for command)
 
-### WhatsApp Desktop not loading
-- If installed from Microsoft Store, try uninstalling and reinstalling
+### Camera/microphone not working
 - Check camera/microphone permissions: **Settings** → **Privacy & security** → **Camera** / **Microphone**
-
-### Dell camera shutter closed
-- Dell laptops have a physical privacy shutter next to the camera
-- Slide it to the right to open the camera
+- Some laptops have a physical camera shutter - slide it open
+- Ensure no other application is using the camera/microphone
 
 ---
 
-## Summary: Your Setup is Complete!
+## Customization Notes for Organizations
 
-✅ Windows signed in with Google Workspace  
-✅ Windows Hello PIN configured  
-✅ All work applications installed  
-✅ Google Drive syncing  
-✅ Remote support tools ready  
-✅ Recording software configured  
+When creating your own version of this guide:
 
-**You're ready to start working!** If you encounter any issues, reach out to IT support via RustDesk or TeamViewer.
+1.  **Add your domain name** (`@your-domain.com`) where applicable
+2.  **Include custom server addresses** for RustDesk, VPNs, or other tools
+3.  **List organization-specific applications** from your Stage 2 script
+4.  **Provide IT contact information** (email, messaging app, phone)
+5.  **Include links to internal resources** (wikis, help desks, shared drives)
+6.  **Remove sections** for applications you don't use
+7.  **Add sections** for applications unique to your organization
+
+**Example structure for your `domains/[your-domain]/IT/` folder:**
+```
+domains/your-domain.com/IT/
+  ├── rustdesk-config.ps1 (if using custom server)
+  ├── stage2-install-apps.ps1 (your org's app list)
+  └── app-setup-guide-[your-domain].md (customized version of this)
+```
+
+---
+
+## Summary
+
+This template provides a starting point for application configuration guidance. Customize it to match your organization's specific applications, servers, and support processes. Users should follow this guide after completing Windows setup and running both installation scripts.
 

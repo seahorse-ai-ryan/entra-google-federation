@@ -199,28 +199,44 @@ Host the Stage 1 script on GitHub (public repo) or a public web server so users 
     *   Example: `https://raw.githubusercontent.com/your-org/your-repo/main/stage1-install-essentials.ps1`
 4.  **Provide this URL to users** (they'll use Edge to access it during initial setup)
 
-### **Create Your Stage 2 Script**
+### **Create Your Stage 2 Script and IT Folder**
 
-The Stage 2 script is organization-specific and must be created for your needs.
+The Stage 2 script is organization-specific and should be organized in your domain's IT folder.
 
 **Steps:**
-1.  **Copy the template:**
+1.  **Create your domain-specific IT folder:**
+    *   In your local copy of this repo: `domains/[your-domain]/IT/`
+    *   This folder is gitignored for security (keeps sensitive configs private)
+2.  **Copy the template and customize:**
     *   Use `scripts/stage2-template.ps1` as a starting point
-    *   Save to `domains/<your-domain>/stage2-install-apps.ps1`
-2.  **Customize for your organization:**
+    *   Save as `domains/[your-domain]/IT/stage2-install-apps.ps1`
     *   Edit the `$appsToInstall` list to include your required applications
     *   Find Winget package IDs using: `winget search "app name"`
-    *   Add any custom configuration sections
-3.  **Upload to Google Drive:**
+    *   Add any custom post-installation configuration sections
+3.  **Create your user documentation:**
+    *   Copy `docs/app-setup-guide.md` as a template
+    *   Customize with your domain (`@your-domain.com`), server addresses, support contacts
+    *   Save as `domains/[your-domain]/IT/app-setup-guide-[your-domain].md`
+4.  **Upload entire IT folder to Google Drive:**
     *   Create an `IT` folder in Google Drive:
         * Option A: `My Drive > IT` (for smaller teams)
         * Option B: `Shared drives > [Your Team Drive] > IT` (recommended)
-    *   Upload your customized Stage 2 script to the IT folder
-    *   If using custom configs (e.g., RustDesk), upload those too
-4.  **Set permissions:**
+    *   Upload your customized Stage 2 script
+    *   Upload your customized app setup guide
+    *   Upload any custom config files (e.g., `rustdesk-config.ps1`)
+5.  **Set permissions:**
     *   Ensure all users have **"Viewer"** or **"Commenter"** access
     *   For shared drives, verify the drive is shared with your organization
-5.  **Test:** Sign in as a test user and verify they can access the IT folder
+6.  **Test:** Sign in as a test user and verify they can access the IT folder
+
+**Your IT folder structure:**
+```
+domains/your-domain.com/IT/
+  ├── stage2-install-apps.ps1 (your org's app list)
+  ├── app-setup-guide-[your-domain].md (customized user docs)
+  ├── rustdesk-config.ps1 (if using custom server)
+  └── README.md (explains folder contents)
+```
 
 **Example applications organizations commonly install:**
 - Communication: Slack, Microsoft Teams, Discord
@@ -231,25 +247,22 @@ The Stage 2 script is organization-specific and must be created for your needs.
 
 ---
 
-## **Step 8: (Optional) Create Custom Configuration Files**
+## **Step 8: (Optional) Add Custom Configuration Files**
 
-If your Stage 2 script installs applications that require custom configuration (e.g., remote support tools with custom servers, VPN clients with server addresses, etc.), you can create configuration files that the script automatically loads.
+If your applications require custom configuration (e.g., RustDesk server settings, VPN configs, proxy settings), add them to your IT folder.
 
-**Example: RustDesk Remote Support Configuration**
+**Example: RustDesk with Custom Server**
 
-If using a custom RustDesk server:
+1.  **Create `domains/[your-domain]/IT/rustdesk-config.ps1`:**
+    ```powershell
+    $RustDeskServer = "your-server.ddns.net"
+    $RustDeskKey = "your-public-key-here="
+    $RustDeskPassword = "your-support-password"
+    ```
+2.  **Upload to Google Drive IT folder** alongside your Stage 2 script
+3.  **The Stage 2 template auto-loads it** from Google Drive and configures RustDesk
 
-1.  **Create the config file:**
-    *   Copy the template from `domains/<your-domain.com>/rustdesk-config.ps1`
-    *   Fill in your server address, public key, and shared support password
-2.  **Upload to Google Drive:**
-    *   Place the config file in the same `IT` folder as your Stage 2 script
-    *   Ensure all users have read access
-3.  **Update your Stage 2 script:**
-    *   Add logic to load and apply the config file
-    *   The script template shows how to search Google Drive paths
-
-**Applies to any application:** This pattern works for any app that needs org-specific configuration - VPN servers, proxy settings, license keys, etc.
+**Applies to any custom configs:** Use this pattern for VPN servers, proxy settings, license keys, or any org-specific configuration that shouldn't be in public scripts.
 
 ---
 
