@@ -265,16 +265,25 @@ The Stage 2 script is organization-specific and should be organized in your doma
     *   Customize with your domain (`@your-domain.com`), server addresses, support contacts
     *   Save as `domains/[your-domain]/IT/app-setup-guide-[your-domain].md`
 4.  **Upload entire IT folder to Google Drive:**
-    *   Create an `IT` folder in Google Drive:
-        * Option A: `My Drive > IT` (for smaller teams)
-        * Option B: `Shared drives > [Your Team Drive] > IT` (recommended)
-    *   Upload your customized Stage 2 script
-    *   Upload your customized app setup guide
-    *   Upload any custom config files (e.g., `rustdesk-config.ps1`)
+    *   **Option A: My Drive (Smaller Teams)**
+        * Create: `My Drive > IT`
+        * Upload your Stage 2 script, app setup guide, and config files here
+    *   **Option B: Shared Drive (Recommended for Teams)**
+        * Create or use an existing shared drive (any name works)
+        * Create an `IT` folder inside that shared drive
+        * Example: `Shared drives > Company General > IT`
+        * Upload your Stage 2 script, app setup guide, and config files here
+    *   **Folder name flexibility:** The Stage 2 script searches for `IT` folders in:
+        * `Google Drive\My Drive\IT\` 
+        * `Google Drive\Shared drives\*\IT\` (searches across ALL shared drives)
+        * You can name your shared drive anything you want - the script will find the IT folder
 5.  **Set permissions:**
     *   Ensure all users have **"Viewer"** or **"Commenter"** access
     *   For shared drives, verify the drive is shared with your organization
-6.  **Test:** Sign in as a test user and verify they can access the IT folder
+6.  **Test:** Sign in as a test user and verify they can:
+    *   See the IT folder in Google Drive
+    *   Right-click and "Run with PowerShell" on the Stage 2 script
+    *   Open the app setup guide (see note below about file formats)
 
 **Your IT folder structure:**
 ```
@@ -291,6 +300,35 @@ domains/your-domain.com/IT/
 - Productivity: Notion, Evernote, Adobe Reader
 - Security: VPN clients, password managers
 - Industry-specific: AutoCAD, MATLAB, medical software, etc.
+
+### **User Documentation Format Recommendations**
+
+**Problem:** Markdown (`.md`) files don't render nicely in Google Drive's preview - users see raw markdown syntax.
+
+**Better Options:**
+
+1.  **Google Docs (Recommended)**
+    *   Create a Google Doc version of your app setup guide
+    *   Advantage: Native formatting, easy to read in Drive, can comment/suggest edits
+    *   Can still keep the `.md` version in your local repo for version control
+    *   Export `.md` → Import to Google Docs → Share link with users
+
+2.  **PDF**
+    *   Convert your markdown to PDF before uploading
+    *   Tools: Pandoc, Typora, or `File > Export as PDF` in most markdown editors
+    *   Advantage: Consistent formatting, widely viewable
+    *   Disadvantage: Harder to update (requires re-export and re-upload)
+
+3.  **HTML** 
+    *   Convert markdown to HTML and upload as `.html`
+    *   Google Drive preview renders HTML reasonably well
+    *   Tools: Pandoc, markdown editors with HTML export
+
+**Recommended Workflow:**
+1.  Maintain your app setup guide as `.md` in your local repo (version control)
+2.  When deploying to Google Drive, convert to Google Docs or PDF
+3.  Share the Google Docs/PDF link with users (better viewing experience)
+4.  Keep both versions: `.md` in repo, Google Doc/PDF in Drive
 
 ---
 
