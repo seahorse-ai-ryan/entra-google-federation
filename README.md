@@ -51,11 +51,29 @@ Enables users to sign into new Windows laptops with their Google Workspace crede
 
 ## Requirements
 
+### **Google Workspace**
+- **Business Plus, Enterprise Standard, or Enterprise Plus license**
+  - Business Starter/Standard: Does NOT support SAML SSO ❌
+  - Business Plus or higher: Supports SAML SSO ✅
+  - Free and non-profit tiers: Not supported
+- Custom domain (e.g., `yourcompany.com`)
+- Super Admin access to Google Workspace console
+
+### **Microsoft Entra ID (Free)**
+- **No paid subscription required** - Entra federation is completely free
+- Global Administrator access
+- **Why needed:** Enables Windows Pro devices to use Google credentials for sign-in
+
+### **DNS Access**
+- Ability to add CNAME records to your domain's DNS
+- Required for Windows device enrollment (see admin setup guide)
+
+### **Windows Devices**
 - **Windows 11 Pro** (Home can be upgraded during OOBE, but it's technical - see docs)
 - **TPM 2.0 chip** (included in all laptops from 2016+, built-in security hardware)
-- Global Administrator access to Microsoft Entra
-- Super Admin access to Google Workspace
-- PowerShell 7.0+ (for administrators)
+
+### **For Administrators**
+- PowerShell 7.0+ (for running setup scripts)
 
 ## Use Cases
 

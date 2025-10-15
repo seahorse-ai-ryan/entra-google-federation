@@ -154,7 +154,54 @@ In the Microsoft Entra Admin Center (`entra.microsoft.com`), navigate to `Identi
 
 ---
 
-## **Step 6: Enable Google Workspace Device Management (Recommended)**
+## **Step 6: Configure DNS Records for Device Enrollment (REQUIRED)**
+
+**Goal:** Add DNS records so Windows devices can find and join your Entra tenant during OOBE.
+
+**Why this is required:** Without these DNS records, Windows devices won't know where to enroll when a user signs in with `@your-domain.com` credentials. The device join will fail silently, and users won't be able to complete setup.
+
+**Human Action Required:**
+
+1.  **Identify your DNS provider:**
+    *   This is where your domain's DNS is hosted (e.g., Cloudflare, GoDaddy, Namecheap, Google Domains)
+    *   Not sure? Check your domain registrar or ask your IT team
+2.  **Get the DNS record values from Entra:**
+    *   Go to `entra.microsoft.com`
+    *   Navigate to `Identity > Devices > Device settings`
+    *   Scroll down to **"Entra domain join"** or look for **"MDM and MAM"** section
+    *   You should see instructions showing the CNAME records needed
+    *   **Alternative:** Use the standard Microsoft values below (they work for most tenants)
+3.  **Add two CNAME records to your DNS:**
+
+| Record Type | Name | Target/Value |
+|------------|------|--------------|
+| CNAME | `enterpriseenrollment` | `enterpriseenrollment-s.manage.microsoft.com` |
+| CNAME | `enterpriseregistration` | `enterpriseregistration.windows.net` |
+
+**Example for `seahorsetwin.com`:**
+- `enterpriseenrollment.seahorsetwin.com` → `enterpriseenrollment-s.manage.microsoft.com`
+- `enterpriseregistration.seahorsetwin.com` → `enterpriseregistration.windows.net`
+
+4.  **Verify DNS propagation:**
+    *   DNS changes can take 5-60 minutes to propagate
+    *   Test using: `nslookup enterpriseenrollment.your-domain.com`
+    *   You should see the Microsoft target in the response
+
+**DNS Provider-Specific Instructions:**
+
+- **Cloudflare:** DNS > Records > Add record > Type: CNAME
+- **GoDaddy:** DNS Management > Add > Type: CNAME
+- **Namecheap:** Advanced DNS > Add New Record > Type: CNAME Record
+- **Google Domains:** DNS > Custom resource records > Type: CNAME
+
+**Important Notes:**
+- Some DNS providers auto-append your domain name - enter just `enterpriseenrollment` without `.your-domain.com`
+- Disable "Proxy" mode in Cloudflare for these records (set to "DNS only")
+- TTL can be set to "Auto" or 3600 (1 hour)
+
+---
+
+## **Step 7: Enable Google Workspace Device Management (Recommended)**
 
 While devices are joined to Entra for authentication, you should also enable Google Workspace device management for easier device tracking and remote wipe capabilities.
 
@@ -183,7 +230,7 @@ While devices are joined to Entra for authentication, you should also enable Goo
 
 ---
 
-## **Step 7: Deploy Application Installation Scripts**
+## **Step 8: Deploy Application Installation Scripts**
 
 Users need access to the installation scripts after setting up Windows. You have two options:
 
@@ -247,7 +294,7 @@ domains/your-domain.com/IT/
 
 ---
 
-## **Step 8: (Optional) Add Custom Configuration Files**
+## **Step 9: (Optional) Add Custom Configuration Files**
 
 If your applications require custom configuration (e.g., RustDesk server settings, VPN configs, proxy settings), add them to your IT folder.
 
@@ -266,7 +313,7 @@ If your applications require custom configuration (e.g., RustDesk server setting
 
 ---
 
-## **Step 9: Maintenance - Updating the Signing Certificate**
+## **Step 10: Maintenance - Updating the Signing Certificate**
 
 Google's SAML certificates have variable expiration dates. Check your Microsoft Office 365 app in Google Workspace admin console to see when your certificate expires (typically 3-5 years from creation).
 
