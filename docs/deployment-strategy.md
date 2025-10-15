@@ -1,10 +1,10 @@
-# 4. Application Deployment Strategy: Decision Report
+# Application Deployment Strategy: Decision Report
 
 ## Executive Summary
 
 This document compares three approaches for deploying applications to Windows devices after federation with Google Workspace. For our international, semi-distributed fleet of tech-savvy users, we have selected **Option 3: Winget-based deployment script** as the optimal balance of cost, automation, and user experience.
 
-**Bottom Line:** By choosing a single-command Winget script over Microsoft Intune, we save **$960 per year per 10 users** while maintaining 95% automation. The one-time 2-minute user action is acceptable given our technical user base.
+**Bottom Line:** By choosing Winget scripts over Microsoft Intune (Microsoft's premium device management service at $8/user/month), we save **$960 per year per 10 users** while maintaining high automation. The one-time 2-minute user action is acceptable given our technical user base.
 
 ---
 
@@ -12,10 +12,10 @@ This document compares three approaches for deploying applications to Windows de
 
 Our organization has successfully configured identity federation between Google Workspace and Microsoft Entra ID, enabling:
 - Drop-ship provisioning (users can unbox and sign in with Google credentials)
-- Zero-touch Windows OOBE experience
-- Automatic user account creation via SCIM
+- Streamlined Windows OOBE experience (minimal user input)
+- Automatic user account creation via **SCIM** (System for Cross-domain Identity Management - a protocol that automatically syncs user accounts from Google Workspace to Microsoft Entra, ensuring users can sign in immediately without manual account creation)
 
-**Remaining Challenge:** We need to automatically deploy applications (Chrome, RustDesk, OBS, WhatsApp, Zoom, Google Drive, TeamViewer) to newly-provisioned devices.
+**Remaining Challenge:** We need to deploy applications to newly-provisioned devices with minimal user effort.
 
 **Key Constraints:**
 - International users (drop-shipping is highly valuable)
@@ -31,7 +31,7 @@ Our organization has successfully configured identity federation between Google 
 Devices joined to Entra ID during OOBE automatically enroll in Intune, which pushes applications via Win32 packages or MSI installers without user intervention.
 
 ### User Experience
-**Best:** True zero-touch. Apps appear automatically 15-30 minutes after first login. No user action required.
+**Best:** Fully automated. Apps appear automatically 15-30 minutes after first login. No user action required.
 
 ### Technical Requirements
 - Intune subscription: $8/user/month
@@ -45,7 +45,7 @@ Devices joined to Entra ID during OOBE automatically enroll in Intune, which pus
 - **3-Year:** $2,880
 
 ### Pros
-- ✅ True zero-touch automation
+- ✅ Fully automated deployment
 - ✅ Centralized management dashboard
 - ✅ Advanced features (compliance policies, conditional access)
 - ✅ Scheduled updates and versioning
@@ -65,13 +65,15 @@ Devices joined to Entra ID during OOBE automatically enroll in Intune, which pus
 
 ---
 
-## Option 2: Google Workspace Device Management (GCPW)
+## Option 2: Google Credential Provider for Windows (GCPW)
 
 ### How It Works
-Devices are NOT joined to Entra ID. Instead, Google Credential Provider for Windows (GCPW) is pre-installed on each device, enabling Google-based login and enrollment in Google's Windows device management.
+This is an alternative authentication method where devices are **NOT** joined to Entra ID. Instead, **GCPW** (Google Credential Provider for Windows) is pre-installed on each device, enabling Google-based login and enrollment in Google's Windows device management system.
+
+**Note:** This is fundamentally incompatible with the Entra federation approach we built. You must choose one or the other.
 
 ### User Experience
-**Good:** After GCPW is installed, login is seamless. Apps deploy automatically via Google Admin Console (MSI packages pushed via OMA-URI policies).
+**Good:** After GCPW is installed, login uses Google credentials. Apps can deploy via Google Admin Console (MSI packages pushed via OMA-URI policies).
 
 ### Technical Requirements
 - Pre-install GCPW on each device before shipping (~15 min/device)
@@ -92,7 +94,7 @@ Devices are NOT joined to Entra ID. Instead, Google Credential Provider for Wind
 
 ### Cons
 - ❌ **NOT drop-ship compatible** (requires pre-installation)
-- ❌ Loses Entra ID benefits (federation work becomes irrelevant)
+- ❌ **Incompatible with Entra federation** (cannot use both)
 - ❌ Less mature than Intune for Windows management
 - ❌ Limited scripting capabilities
 - ❌ Must wrap configs in MSI packages
@@ -101,12 +103,12 @@ Devices are NOT joined to Entra ID. Instead, Google Credential Provider for Wind
 - No drop-ship requirement (can prep devices locally)
 - Want to minimize recurring costs
 - Prefer Google-centric management
-- Don't need advanced Windows policies
+- Don't need Entra ID integration
 
 ### Why We Didn't Choose This
 **Deal-breaker:** Abandons the Entra federation we just built and eliminates drop-ship capability, which is critical for our international users.
 
-**Note on GCPW Compatibility:** While GCPW and Entra federation can technically coexist, it adds unnecessary complexity. Our troubleshooting revealed that GCPW was not the cause of authentication issues (those were federation configuration problems). However, for simplicity, we recommend using Entra-only federation unless you specifically need Google-side device management features.
+**Clarification:** While Google Workspace device tracking (enabled in Step 6 of admin setup) works alongside Entra federation, full GCPW deployment replaces Entra federation entirely. We enable Google device tracking for visibility, but use Entra for authentication.
 
 ---
 
@@ -117,6 +119,8 @@ Devices join Entra ID as planned. On first login, user runs a single PowerShell 
 
 ### User Experience
 **Very Good:** After initial login, user copies one command into Terminal (Admin) and presses Enter. Apps install automatically over 10-15 minutes. User can continue working.
+
+**Reality check:** This requires one manual user action (running the command). It's not fully automated, but achieves 95% automation at zero cost.
 
 **Instruction Example:**
 ```
@@ -164,9 +168,9 @@ irm https://raw.githubusercontent.com/seahorse-ai-ryan/entra-google-federation/m
 
 | Criteria | Intune (Option 1) | GCPW (Option 2) | Winget (Option 3) |
 |----------|-------------------|-----------------|-------------------|
-| **Zero-Touch** | ✅ Full | ⚠️ Partial | ⚠️ 95% (one command) |
+| **Automation Level** | ✅ Fully automated | ⚠️ Fully automated (after pre-install) | ⚠️ 95% (one command) |
 | **Drop-Ship Compatible** | ✅ Yes | ❌ No | ✅ Yes |
-| **Cost (10 users, 1 year)** | $960 | $0 | $0 |
+| **Cost (10 users, 1 year)** | $960 ($8/user/month) | $0 | $0 |
 | **Keeps Entra Federation** | ✅ Yes | ❌ No | ✅ Yes |
 | **User Effort** | None | None | 2 minutes (one-time) |
 | **Admin Complexity** | High | Medium | Low |

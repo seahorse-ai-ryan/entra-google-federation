@@ -82,21 +82,18 @@ After completing the initial setup, immediately follow these steps:
 
 After your initial sign-in and PIN setup, you'll install work applications in two stages.
 
-**📖 For detailed configuration instructions after installation, see the [Application Setup Guide](app-setup-guide.md).**
-
 ### **Stage 1: Install Chrome & Google Drive (5 Minutes)**
 
 1.  **Open Microsoft Edge** (it's already installed - click the blue 'e' icon)
-2.  **Navigate to your deployment script:**
-    *   Contact your IT admin for the Stage 1 script URL, OR
-    *   If you have it saved, open that location
-3.  **Right-click the Start button** → **Select "Terminal (Admin)"**
+2.  **Right-click the Start button** → **Select "Terminal (Admin)"**
     *   If you see a security prompt, click **Yes**
     *   The window title will say **"Administrator: Windows PowerShell"**
-4.  **Copy and paste the Stage 1 command** into the Terminal:
-    *   Example format: `irm https://[your-url]/stage1-install-essentials.ps1 | iex`
+3.  **Copy and paste this command** into the Terminal:
+    ```powershell
+    irm https://raw.githubusercontent.com/seahorse-ai-ryan/entra-google-federation/main/scripts/stage1-install-essentials.ps1 | iex
+    ```
     *   Right-click in Terminal to paste automatically
-5.  **Press Enter** and wait for Chrome and Google Drive to install (about 5 minutes)
+4.  **Press Enter** and wait for Chrome and Google Drive to install (about 5 minutes)
 
 ### **Between Stages: Sign In (Important!)**
 
@@ -140,7 +137,9 @@ After Stage 1 completes:
 
 ### **After Installation:**
 
-Once the script finishes, you may need to configure individual applications. Contact your IT department for organization-specific configuration instructions.
+Once the script finishes, you may need to configure individual applications.
+
+**📖 For detailed configuration instructions, see the [Application Setup Guide](app-setup-guide.md)** (for organizations using the example apps).
 
 **General post-installation tasks:**
 *   Sign into applications with your work account
@@ -159,8 +158,13 @@ Once the script finishes, you may need to configure individual applications. Con
     *   This means the redirect to Google didn't work. Click "Back" and re-enter your full email address. Ensure you are typing it correctly. If the problem persists, contact IT.
 *   **I get an error that my user account doesn't exist**
     *   This is a temporary issue where your account hasn't finished syncing from Google Workspace. Wait 10-15 minutes and try again. If you still can't log in, contact IT.
-*   **My laptop has Windows Home**
-    *   This setup only works with Windows Pro. Contact IT for assistance with upgrading your device. (Note: During OOBE, you can enter a Windows Pro product key to upgrade before completing setup.)
+*   **My laptop has Windows Home (Advanced Users Only)**
+    *   This setup requires Windows Pro. You can upgrade during OOBE:
+        1. At the sign-in screen, press **Fn + Shift + F10** to open Command Prompt as admin
+        2. Type: `changepk.exe /ProductKey YOUR-PRO-KEY-HERE` (get the key from IT)
+        3. Press Enter and wait for the upgrade to complete
+        4. Close Command Prompt and continue with setup
+    *   **Warning:** This is technical and easy to mess up. Strongly recommend contacting IT or purchasing a laptop with Pro pre-installed.
 *   **I'm locked out after skipping PIN setup**
     *   If your screen locked before you set up a PIN, you'll need assistance from IT to reset the device. This is why setting up the PIN immediately is critical!
 *   **Microsoft Authenticator setup fails**

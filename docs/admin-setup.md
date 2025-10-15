@@ -255,7 +255,13 @@ If using a custom RustDesk server:
 
 ## **Step 9: Maintenance - Updating the Signing Certificate**
 
-Google's SAML certificate expires approximately every 5 years. When it does, you'll need to update it.
+Google's SAML certificates have variable expiration dates. Check your Microsoft Office 365 app in Google Workspace admin console to see when your certificate expires (typically 3-5 years from creation).
 
-1.  **Human Action:** Download the new `GoogleIDPMetadata.xml` file from the Google SAML app.
-2.  **AI Agent Action:** The AI will run the `update-federation-certificate.ps1` script, which will update the trust with the new certificate.
+**When to update:** You'll see an expiration warning in Google Workspace admin console, or your certificate details will show an approaching expiration date.
+
+**How to update:**
+1.  **Human Action:** Download the new `GoogleIDPMetadata.xml` file from the Google SAML app
+2.  **Run update script:** Execute `update-federation-certificate.ps1` with the new metadata file
+3.  **Verify:** Test authentication after updating
+
+**Pro tip:** Set a calendar reminder for 30 days before expiration to avoid any service interruption.
