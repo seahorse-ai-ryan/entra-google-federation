@@ -1,33 +1,72 @@
 # Entra ↔ Google Federation Toolkit
 
-This workspace provides reusable PowerShell scripts and documentation for federating a Microsoft Entra tenant with a Google Workspace IdP and for maintaining the configuration over time.
+PowerShell scripts and documentation for Zero-Touch Windows provisioning using Google Workspace as the identity provider.
 
-## Directory Layout
+## What This Does
 
-- `scripts/`
-  - `connect-graph.ps1` — launches an interactive Microsoft Graph session with all required scopes.
-  - `apply-federation.ps1` — connects, disables security defaults, applies the federation payload for a domain, and reenables defaults.
-  - `apply-federation-legacy.ps1` — archived two-step version kept for reference.
-  - `update-federation-certificate.ps1` — imports metadata XML and rotates the signing certificate/URIs.
-- `domains/<domain>/` — drop per-domain artifacts here (e.g., Google metadata, provisioning notes).
-- `docs/` — project documentation (`project-goals.md`, etc.).
-- `.gitignore` — excludes `domains/`, `graph_context.clixml`, and other local artifacts so the repository can be shared safely.
+Enables users to sign into new Windows laptops with their Google Workspace credentials during Out-of-Box Experience (OOBE), without requiring local IT support.
 
-## Usage
+**Key Features:**
+- ✅ Drop-ship compatible (international users can self-provision)
+- ✅ Single sign-on with Google Workspace
+- ✅ Automated application deployment via Winget
+- ✅ No recurring per-user licensing costs (no Intune required)
+- ✅ Reusable for multiple domains
 
-1. Export metadata from Google Admin (`Download metadata`) and place it under `domains/<your-domain>/`.
-2. Run `./scripts/apply-federation.ps1 -MetadataPath ./domains/<your-domain>/YourMetadata.xml -BrowserAuth` to set up federation for the domain.
-3. Run `./scripts/update-federation-certificate.ps1 -MetadataPath ./domains/<your-domain>/YourMetadata.xml -BrowserAuth` whenever the Google signing cert is renewed.
-4. Optional: `./scripts/connect-graph.ps1 -BrowserAuth` if you only need to launch a scoped Graph session for ad-hoc commands.
+## How It Works
 
-## Adding a New Domain
+1. **Federation:** Microsoft Entra ID trusts Google Workspace for authentication
+2. **Provisioning:** User accounts sync from Google Workspace to Entra (SCIM)
+3. **OOBE:** Users sign in with Google credentials during Windows setup
+4. **Apps:** One PowerShell command installs all required applications
 
-- Copy existing scripts; no code changes needed. Only swap in the new metadata file under `domains/<new-domain>/`.
-- The scripts accept `-DomainId` so the same toolkit works for any domain.
-- Document domain-specific mappings or provisioning steps in `domains/<new-domain>/README.md` if desired.
+## Quick Links
 
-## Notes
+📖 **[Full Documentation](docs/README.md)** - Start here for setup guides
 
-- Security defaults are temporarily disabled and reenabled automatically inside the scripts.
-- After federation, test via `https://login.microsoftonline.com/login.srf?wa=wsignin1.0&whr=<domain>`.
-- Keep the domain metadata up to date and re-run the update script when Google rotates certificates.
+**For Administrators:**
+- [Administrator Setup Guide](docs/admin-setup.md) - One-time configuration
+
+**For End Users:**
+- [Windows Setup Guide](docs/windows-setup-guide.md) - New laptop setup
+- [Application Installation Guide](docs/app-setup-guide.md) - Installing work apps
+
+## Repository Structure
+
+```
+├── scripts/
+│   ├── apply-federation-simple.ps1    # Federation setup
+│   ├── stage1-install-essentials.ps1  # Chrome + Drive (all orgs)
+│   ├── stage2-template.ps1            # Template for org-specific apps
+│   └── ...                            # Other utility scripts
+├── docs/              # Complete documentation
+├── domains/           # Domain-specific configs (gitignored)
+│   └── <your-domain>/
+│       ├── GoogleIDPMetadata.xml      # SAML metadata
+│       ├── stage2-install-apps.ps1    # Org-specific apps
+│       └── *.ps1                      # Custom configs
+└── README.md          # This file
+```
+
+## Requirements
+
+- Windows 11 Pro
+- Global Administrator access to Microsoft Entra
+- Super Admin access to Google Workspace
+- PowerShell 7.0+
+
+## Use Cases
+
+This toolkit is ideal for:
+- Small to medium organizations (5-50 devices)
+- Remote/distributed teams
+- Cost-sensitive organizations avoiding Intune
+- Drop-ship laptop deployments
+
+## License
+
+MIT
+
+---
+
+**Getting Started?** Head to the [Documentation](docs/README.md) for complete setup instructions.

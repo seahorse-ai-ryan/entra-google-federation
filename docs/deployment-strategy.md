@@ -106,6 +106,8 @@ Devices are NOT joined to Entra ID. Instead, Google Credential Provider for Wind
 ### Why We Didn't Choose This
 **Deal-breaker:** Abandons the Entra federation we just built and eliminates drop-ship capability, which is critical for our international users.
 
+**Note on GCPW Compatibility:** While GCPW and Entra federation can technically coexist, it adds unnecessary complexity. Our troubleshooting revealed that GCPW was not the cause of authentication issues (those were federation configuration problems). However, for simplicity, we recommend using Entra-only federation unless you specifically need Google-side device management features.
+
 ---
 
 ## Option 3: Winget Deployment Script (Chosen Approach)
@@ -186,7 +188,7 @@ irm https://raw.githubusercontent.com/seahorse-ai-ryan/entra-google-federation/m
 ### Implementation Plan
 
 1. Create `scripts/deploy-apps.ps1` with Winget commands for all required apps
-2. Add clear user instructions to `docs/3-end-user-guide.md`
+2. Add clear user instructions to `docs/windows-setup-guide.md`
 3. Test script on a pilot device
 4. Distribute the single-command instruction to users after OOBE
 5. Monitor feedback and iterate on script as needed

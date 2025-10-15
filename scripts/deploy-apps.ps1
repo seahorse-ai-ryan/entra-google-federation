@@ -13,7 +13,7 @@ Write-Host "  - Google Chrome" -ForegroundColor White
 Write-Host "  - Google Drive" -ForegroundColor White
 Write-Host "  - RustDesk" -ForegroundColor White
 Write-Host "  - OBS Studio" -ForegroundColor White
-Write-Host "  - WhatsApp" -ForegroundColor White
+Write-Host "  - WhatsApp Desktop" -ForegroundColor White
 Write-Host "  - Zoom" -ForegroundColor White
 Write-Host "  - TeamViewer QuickSupport" -ForegroundColor White
 Write-Host ""
@@ -21,10 +21,29 @@ Write-Host "Estimated time: 10-15 minutes" -ForegroundColor Yellow
 Write-Host "You can continue working while apps install in the background." -ForegroundColor Green
 Write-Host ""
 
-# Configuration variables (customize these as needed)
-$RustDeskServer = "your-rustdesk-server.com"
-$RustDeskKey = "your-public-key-here"
-$RustDeskPassword = "your-permanent-password-here"
+# Configuration variables
+# For RustDesk, these can be loaded from a separate config file (not in public repo)
+$RustDeskServer = $null
+$RustDeskKey = $null
+$RustDeskPassword = $null
+
+# Try to load RustDesk config from multiple possible locations
+$configPaths = @(
+    "$env:USERPROFILE\Downloads\rustdesk-config.ps1",                      # Manual download location
+    "$env:USERPROFILE\Google Drive\My Drive\IT\rustdesk-config.ps1",      # Google Drive (My Drive)
+    "$env:USERPROFILE\Google Drive\Shared drives\*\IT\rustdesk-config.ps1" # Google Drive (Shared drives)
+)
+
+foreach ($path in $configPaths) {
+    # Handle wildcards for shared drives
+    $resolvedPaths = Get-Item -Path $path -ErrorAction SilentlyContinue
+    if ($resolvedPaths) {
+        $configPath = $resolvedPaths[0].FullName
+        Write-Host "Loading RustDesk configuration from: $configPath" -ForegroundColor Yellow
+        . $configPath
+        break
+    }
+}
 
 # Function to install an app with error handling
 function Install-WingetApp {
@@ -75,8 +94,8 @@ Start-Sleep -Seconds 2
 $results['OBS'] = Install-WingetApp -AppName "OBS Studio" -WingetId "OBSProject.OBSStudio"
 Start-Sleep -Seconds 2
 
-# 5. WhatsApp
-$results['WhatsApp'] = Install-WingetApp -AppName "WhatsApp" -WingetId "WhatsApp.WhatsApp"
+# 5. WhatsApp Desktop
+$results['WhatsApp'] = Install-WingetApp -AppName "WhatsApp Desktop" -WingetId "9NKSQGP7F2NH"
 Start-Sleep -Seconds 2
 
 # 6. Zoom
@@ -97,11 +116,12 @@ Write-Host ""
 if ($results['RustDesk']) {
     Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Configuring RustDesk..." -ForegroundColor Cyan
     
-    $rustDeskConfigPath = "$env:ProgramFiles\RustDesk\RustDesk2.toml"
-    
-    if (Test-Path $rustDeskConfigPath) {
-        try {
-            $configContent = @"
+    if ($RustDeskServer -and $RustDeskKey -and $RustDeskPassword) {
+        $rustDeskConfigPath = "$env:ProgramFiles\RustDesk\RustDesk2.toml"
+        
+        if (Test-Path $rustDeskConfigPath) {
+            try {
+                $configContent = @"
 [server]
 host = '$RustDeskServer'
 key = '$RustDeskKey'
@@ -109,13 +129,17 @@ key = '$RustDeskKey'
 [options]
 permanent_password = '$RustDeskPassword'
 "@
-            $configContent | Set-Content -Path $rustDeskConfigPath -Encoding UTF8 -Force
-            Write-Host "  ✓ RustDesk configured with server settings" -ForegroundColor Green
-        } catch {
-            Write-Host "  ✗ Failed to configure RustDesk: $_" -ForegroundColor Red
+                $configContent | Set-Content -Path $rustDeskConfigPath -Encoding UTF8 -Force
+                Write-Host "  ✓ RustDesk configured with server settings" -ForegroundColor Green
+            } catch {
+                Write-Host "  ✗ Failed to configure RustDesk: $_" -ForegroundColor Red
+            }
+        } else {
+            Write-Host "  ⚠ RustDesk config file not found. You may need to configure manually." -ForegroundColor Yellow
         }
     } else {
-        Write-Host "  ⚠ RustDesk config file not found. You may need to configure manually." -ForegroundColor Yellow
+        Write-Host "  ⚠ RustDesk config not loaded. Manual configuration required." -ForegroundColor Yellow
+        Write-Host "    See docs for instructions on setting up server connection." -ForegroundColor Gray
     }
 }
 
