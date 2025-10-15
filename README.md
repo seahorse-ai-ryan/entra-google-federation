@@ -9,16 +9,17 @@ Enables users to sign into new Windows laptops with their Google Workspace crede
 **Key Features:**
 - ✅ Drop-ship compatible (international users can self-provision)
 - ✅ Single sign-on with Google Workspace
-- ✅ Automated application deployment via Winget
-- ✅ No recurring per-user licensing costs (no Intune required)
+- ✅ Automated application deployment via Winget (Windows Package Manager)
+- ✅ **Free** - No recurring per-user licensing costs (no Intune required)
 - ✅ Reusable for multiple domains
 
 ## How It Works
 
-1. **Federation:** Microsoft Entra ID trusts Google Workspace for authentication
-2. **Provisioning:** User accounts sync from Google Workspace to Entra (SCIM)
-3. **OOBE:** Users sign in with Google credentials during Windows setup
-4. **Apps:** One PowerShell command installs all required applications
+1. **Federation:** Microsoft Entra ID (Azure AD's successor - the cloud identity service for Windows) trusts Google Workspace for authentication
+2. **Why Entra?** Without Entra federation, Windows requires a Microsoft account or local account - you cannot sign in with Google credentials. Entra is **free** for basic usage like this. See our [deployment strategy](docs/deployment-strategy.md) for alternatives and why we chose this approach.
+3. **Provisioning:** User accounts automatically sync from Google Workspace to Entra (SCIM)
+4. **OOBE:** Users sign in with Google credentials during Windows setup
+5. **Apps:** PowerShell scripts install organization-specific applications via Winget
 
 ## Quick Links
 
@@ -50,10 +51,11 @@ Enables users to sign into new Windows laptops with their Google Workspace crede
 
 ## Requirements
 
-- Windows 11 Pro
+- **Windows 11 Pro** (Home can be upgraded during OOBE, but it's technical - see docs)
+- **TPM 2.0 chip** (included in all laptops from 2016+, built-in security hardware)
 - Global Administrator access to Microsoft Entra
 - Super Admin access to Google Workspace
-- PowerShell 7.0+
+- PowerShell 7.0+ (for administrators)
 
 ## Use Cases
 

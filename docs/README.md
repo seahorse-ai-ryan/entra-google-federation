@@ -8,9 +8,11 @@ This project creates a "Zero-Touch" deployment system for new Windows laptops. R
 
 ## How It Works
 
-We create a trust relationship called **identity federation** between Microsoft Entra ID (which controls Windows logins) and Google Workspace (your identity provider). When users type their `@<your-domain.com>` email into Windows, they're redirected to Google for authentication.
+We create a trust relationship called **identity federation** between Microsoft Entra ID (Azure AD's successor - the cloud identity service for Windows, similar to Active Directory but cloud-based) and Google Workspace (your identity provider). When users type their `@<your-domain.com>` email into Windows, they're redirected to Google for authentication.
 
-Once authenticated, their account is automatically created in Microsoft Entra via **SCIM provisioning**. The user then runs a single PowerShell command to install all required applications.
+**Why Entra?** Without this federation, Windows only accepts Microsoft accounts or local accounts. Entra federation is the *only* way to enable Google Workspace sign-in on Windows. Entra is **free** for this basic usage - no licensing required.
+
+Once authenticated, their account is automatically created in Microsoft Entra via **SCIM provisioning**. The user then runs PowerShell scripts to install organization-specific applications via **Winget** (Windows Package Manager - like apt/brew for Windows, built into Windows 11).
 
 ## Why PowerShell Scripts?
 
@@ -71,13 +73,13 @@ After signing into Windows, users install applications with a single PowerShell 
 **Time Required:** 2 minutes of user time, 10-15 minutes of installation time
 
 **What Gets Installed:**
-- Google Chrome
-- Google Drive
-- RustDesk (remote support)
-- OBS Studio (screen recording)
-- WhatsApp Desktop
-- Zoom
-- TeamViewer QuickSupport
+- **Stage 1 (Universal):** Chrome + Google Drive
+- **Stage 2 (Organization-specific):** Custom applications such as:
+  - Communication tools (Slack, Teams, Zoom, WhatsApp)
+  - Development tools (VS Code, Git, Docker)
+  - Productivity software (Adobe Reader, Notion)
+  - Industry-specific applications
+  - Remote support tools (RustDesk, TeamViewer)
 
 ---
 
@@ -120,12 +122,14 @@ This toolkit is designed to work with multiple domains. Simply create a new `dom
 ## Requirements
 
 **Hardware:**
-- Windows 11 Pro (not Home)
-- Modern laptop with TPM 2.0
+- **Windows 11 Pro** (preferred for drop-ship)
+  - Home edition *can* be upgraded during OOBE with a Pro product key, but this is technical and may confuse non-technical users
+- **TPM 2.0 chip** (Trusted Platform Module - security hardware included in all laptops manufactured since 2016, required for Windows Hello PIN)
 
 **Software:**
 - PowerShell 7.0+ (for administrators)
 - Microsoft.Graph PowerShell modules (for administrators)
+- Winget (Windows Package Manager - included in Windows 11 by default)
 
 **Access:**
 - Global Administrator role in Microsoft Entra

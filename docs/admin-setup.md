@@ -4,7 +4,7 @@ This guide details the one-time setup that an IT administrator must perform to f
 
 **Your Role (Human):** You will be performing actions in the Google Workspace Admin Console and the Microsoft Entra Admin Center. You will also be asked to sign in to your administrator account when the scripts prompt you.
 
-**AI's Role (Agent):** The AI will run the PowerShell scripts that perform the technical configuration.
+**Running Scripts:** You can run the PowerShell scripts yourself, or use an AI agent with CLI tool access (like Cursor, GitHub Copilot, etc.) to execute them on your behalf. Some tasks **must** be done by a human (signing in, clicking buttons in web UIs).
 
 ## **Prerequisites**
 
@@ -73,11 +73,17 @@ For business continuity, you should have at least 2-3 administrators in both sys
 2.  **Add the App:**
     *   Click `Add app > Search for apps` and search for "Microsoft Office 365".
     *   Select the official app and proceed through the initial screens.
-3.  **Download Metadata:**
+3.  **Configure SAML Settings:**
+    *   Under "Service provider details", you'll see fields for ACS URL and Entity ID
+    *   Leave these at their default values (Microsoft's URLs)
+    *   Under "Attribute mapping", configure:
+        * **Name ID format**: Select "EMAIL"
+        * **Name ID**: Map to "Basic Information > Primary Email"
+4.  **Download Metadata:**
     *   You will land on a page with "Google Identity Provider details". Click **Download Metadata**.
     *   The file will be named `GoogleIDPMetadata.xml`. Save it into the `domains/<your-domain.com>/` folder in this repository.
-4.  **Finish and Assign:**
-    *   Continue through the setup wizard. You do not need to change any other settings.
+5.  **Finish and Assign:**
+    *   Continue through the setup wizard
     *   Once the app is created, make sure to turn it **ON for everyone**.
 
 ---
@@ -94,9 +100,11 @@ For business continuity, you should have at least 2-3 administrators in both sys
     *   You will be redirected to a Microsoft sign-in page. Sign in with your Global Administrator account.
     *   On the "Permissions requested" screen, check "Consent on behalf of your organization" and click **Accept**.
 3.  **Configure Attribute Mappings:**
-    *   **`userPrincipalName` (Required):** Map to `Basic Information > Username`.
-    *   **`onPremisesImmutableId` (Required):** Map to `Contact Information > Email > Value`.
-    *   Map other attributes like `givenName` and `surname` as needed.
+    *   This is **different** from the SAML mapping - this is for auto-provisioning user accounts
+    *   **`userPrincipalName` (Required):** Map to `Contact Information > Email > Value`
+    *   **`onPremisesImmutableId` (Required):** Map to `Contact Information > Email > Value` (yes, same as above)
+    *   **Important:** Use "Email > Value", NOT "Is Primary" (which is a boolean)
+    *   Map other attributes like `givenName` and `surname` as needed
 4.  **Enable Provisioning:**
     *   Define the scope (which users to sync) and enable auto-provisioning.
 
@@ -179,7 +187,7 @@ While devices are joined to Entra for authentication, you should also enable Goo
 
 Users need access to the installation scripts after setting up Windows. You have two options:
 
-### **Option A: Host Stage 1 Script Publicly (Recommended)**
+### **Host Stage 1 Script Publicly**
 
 Host the Stage 1 script on GitHub (public repo) or a public web server so users can access it via Edge during initial setup.
 
@@ -189,16 +197,7 @@ Host the Stage 1 script on GitHub (public repo) or a public web server so users 
 3.  **Get the raw file URL:**
     *   On GitHub: Click the file → Click "Raw" button → Copy URL
     *   Example: `https://raw.githubusercontent.com/your-org/your-repo/main/stage1-install-essentials.ps1`
-4.  **Provide this URL to users** (they'll run it from Edge during initial setup)
-
-### **Option B: Email Script to Users**
-
-Send both scripts via email before users receive their laptops.
-
-**Steps:**
-1.  Email `stage1-install-essentials.ps1` to each user
-2.  Instruct them to download it to Downloads folder before starting OOBE
-3.  They can then run it from PowerShell after initial setup
+4.  **Provide this URL to users** (they'll use Edge to access it during initial setup)
 
 ### **Create Your Stage 2 Script**
 
@@ -232,30 +231,29 @@ The Stage 2 script is organization-specific and must be created for your needs.
 
 ---
 
-## **Step 8: (Optional) Configure RustDesk for Remote Support**
+## **Step 8: (Optional) Create Custom Configuration Files**
 
-If your organization uses a custom RustDesk server for remote support:
+If your Stage 2 script installs applications that require custom configuration (e.g., remote support tools with custom servers, VPN clients with server addresses, etc.), you can create configuration files that the script automatically loads.
 
-**Human Action Required:**
+**Example: RustDesk Remote Support Configuration**
 
-1.  **Update the config file:**
-    *   Edit `domains/<your-domain.com>/rustdesk-config.ps1`
+If using a custom RustDesk server:
+
+1.  **Create the config file:**
+    *   Copy the template from `domains/<your-domain.com>/rustdesk-config.ps1`
     *   Fill in your server address, public key, and shared support password
 2.  **Upload to Google Drive:**
-    *   Create an `IT` folder in your Google Drive shared drive (or My Drive)
-    *   Upload `rustdesk-config.ps1` to this folder
-    *   Ensure all users have read access to this folder
-3.  **Verify:** When users run the deployment script after signing into Google Drive, RustDesk will automatically configure itself
+    *   Place the config file in the same `IT` folder as your Stage 2 script
+    *   Ensure all users have read access
+3.  **Update your Stage 2 script:**
+    *   Add logic to load and apply the config file
+    *   The script template shows how to search Google Drive paths
 
-**Config File Location Options:**
-- `Google Drive\Shared drives\[Your Shared Drive]\IT\rustdesk-config.ps1` (recommended for teams)
-- `Google Drive\My Drive\IT\rustdesk-config.ps1` (for smaller organizations)
-
-**Note:** The deployment script checks all these locations automatically. If the file isn't found, users can still manually configure RustDesk or the script will skip the configuration step.
+**Applies to any application:** This pattern works for any app that needs org-specific configuration - VPN servers, proxy settings, license keys, etc.
 
 ---
 
-## **Step 8: Maintenance - Updating the Signing Certificate**
+## **Step 9: Maintenance - Updating the Signing Certificate**
 
 Google's SAML certificate expires approximately every 5 years. When it does, you'll need to update it.
 
