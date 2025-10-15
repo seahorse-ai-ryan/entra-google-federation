@@ -111,13 +111,19 @@ After Stage 1 completes:
 1.  **Open File Explorer**
 2.  **Navigate to Google Drive:**
     *   Click **"Google Drive"** in the left sidebar
-    *   Go to **"My Drive"** OR **"Shared drives > [Your Team Drive]"**
-    *   Find the **"IT"** folder
-3.  **Right-click the Stage 2 script** (filename may vary per organization) → **"Run with PowerShell"**
-    *   If prompted, click **"Yes"** to allow admin access
+    *   Go to **"My Drive > IT"** OR **"Shared drives > [Your Team Drive] > IT"**
+    *   You should see a PowerShell script (`.ps1` file) - the filename may vary per organization
+3.  **Right-click the Stage 2 script** → **"Run with PowerShell"**
+    *   **Important:** You must right-click in File Explorer (not in the Google Drive web browser)
+    *   If prompted "Do you want to allow this app to make changes?", click **"Yes"**
 4.  **Let it run!** It will install your organization's required applications
     *   The script will show which apps are being installed
     *   You can minimize the window and continue working
+    *   Estimated time: 10-15 minutes
+
+**Troubleshooting:** If the PowerShell window opens and closes immediately:
+- You may not have clicked "Yes" to the admin prompt fast enough
+- Try again: Right-click → "Run with PowerShell" → Quickly click "Yes" when prompted
 
 ### **What Gets Installed:**
 

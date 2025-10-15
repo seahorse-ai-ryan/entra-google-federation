@@ -281,9 +281,12 @@ The Stage 2 script is organization-specific and should be organized in your doma
     *   Ensure all users have **"Viewer"** or **"Commenter"** access
     *   For shared drives, verify the drive is shared with your organization
 6.  **Test:** Sign in as a test user and verify they can:
-    *   See the IT folder in Google Drive
-    *   Right-click and "Run with PowerShell" on the Stage 2 script
+    *   Open File Explorer and see "Google Drive" in the left sidebar
+    *   Navigate to the IT folder in File Explorer (not web browser)
+    *   Right-click the Stage 2 script → "Run with PowerShell" → Approve admin prompt
     *   Open the app setup guide (see note below about file formats)
+
+**Important:** Users MUST access the script through File Explorer's Google Drive folder (synced locally), NOT through the Google Drive web interface. The web interface doesn't provide the "Run with PowerShell" context menu option.
 
 **Your IT folder structure:**
 ```
