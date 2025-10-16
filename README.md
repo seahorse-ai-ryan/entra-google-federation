@@ -52,10 +52,14 @@ Enables users to sign into new Windows laptops with their Google Workspace crede
 ## Requirements
 
 ### **Google Workspace**
-- **Business Plus, Enterprise Standard, or Enterprise Plus license**
-  - Business Starter/Standard: Does NOT support SAML SSO ❌
-  - Business Plus or higher: Supports SAML SSO ✅
+- **Business Plus, Enterprise Standard, or Enterprise Plus license required**
+  - Business Starter ($6/user/mo): Does NOT support SAML SSO ❌
+  - Business Standard ($12/user/mo): Does NOT support SAML SSO ❌
+  - **Business Plus ($22/user/mo)**: Supports SAML SSO ✅
+  - **Enterprise Standard ($27/user/mo)**: Supports SAML SSO ✅
+  - **Enterprise Plus ($35/user/mo)**: Supports SAML SSO ✅
   - Free and non-profit tiers: Not supported
+  - *(Pricing approximate as of Oct 2025, varies by region/contract)*
 - Custom domain (e.g., `yourcompany.com`)
 - Super Admin access to Google Workspace console
 

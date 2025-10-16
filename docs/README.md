@@ -31,8 +31,10 @@ The initial setup requires configuring both Google Workspace and Microsoft Entra
 **Time Required:** 1-2 hours
 
 **Prerequisites:**
-- Global Administrator access to Microsoft Entra
+- Global Administrator access to Microsoft Entra (free)
 - Super Admin access to Google Workspace
+  - **Required license:** Business Plus, Enterprise Standard, or Enterprise Plus
+  - Business Starter/Standard do NOT support SAML SSO
 - Verified custom domain in both systems
 - PowerShell 7.0+
 

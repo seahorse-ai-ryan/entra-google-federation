@@ -8,10 +8,14 @@ This guide details the one-time setup that an IT administrator must perform to f
 
 ## **Prerequisites**
 
-1.  **Global Administrator Account:** An account with "Global Administrator" rights in your Microsoft Entra tenant (e.g., `admin@<your-tenant>.onmicrosoft.com`).
+1.  **Global Administrator Account:** An account with "Global Administrator" rights in your Microsoft Entra tenant (e.g., `admin@<your-tenant>.onmicrosoft.com`). Entra ID is **free** - no paid subscription required.
 2.  **Google Workspace Admin Account:** An account with "Super Admin" rights in your Google Workspace.
+    *   **Required license:** Business Plus ($22/user/mo), Enterprise Standard ($27/user/mo), or Enterprise Plus ($35/user/mo)
+    *   **Not supported:** Business Starter, Business Standard, Free, or Non-profit editions (these lack SAML SSO)
+    *   *(Pricing approximate as of Oct 2025, varies by region/contract)*
 3.  **Verified Domain:** Your custom domain (e.g., `<your-domain.com>`) must be successfully added and verified in **both** Google Workspace and Microsoft Entra.
 4.  **PowerShell Scripts:** The scripts from this repository must be available on your local machine.
+5.  **DNS Access:** Ability to add CNAME records to your domain (required for device enrollment).
 
 ### **Important: Set Up Multiple Administrators (Redundancy)**
 
