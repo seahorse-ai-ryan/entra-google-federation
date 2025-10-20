@@ -6,6 +6,65 @@ This guide details the one-time setup that an IT administrator must perform to f
 
 **Running Scripts:** You can run the PowerShell scripts yourself, or use an AI agent with CLI tool access (like Cursor, GitHub Copilot, etc.) to execute them on your behalf. Some tasks **must** be done by a human (signing in, clicking buttons in web UIs).
 
+---
+
+## **Step 0: Create Your Microsoft Entra Tenant (First-Time Only)**
+
+**If you already have a Microsoft Entra tenant, skip to Prerequisites below.**
+
+As of May 2025, Microsoft requires a paid license to create new Entra tenants directly through Azure Portal. The workaround is to create a tenant through a Microsoft 365 trial.
+
+### **Create Tenant via Microsoft 365 Trial**
+
+1.  **Go to:** https://www.microsoft.com/en-us/microsoft-365/enterprise/office-365-e3
+2.  **Click:** "Free trial" (requires payment method, but you can cancel before being charged)
+3.  **During setup:**
+    *   Use any email address to start (e.g., your personal email)
+    *   Choose your organization name (e.g., "LGITech")
+    *   This creates your `.onmicrosoft.com` domain (e.g., `lgitech.onmicrosoft.com`)
+    *   Create your first admin account (e.g., `admin@lgitech.onmicrosoft.com`)
+4.  **Complete trial setup:**
+    *   Set up Microsoft Authenticator for MFA
+    *   You now have a functioning Entra ID tenant (free tier)
+5.  **Cancel the trial** (optional):
+    *   After setup completes, you can cancel the Microsoft 365 trial
+    *   **The Entra ID tenant remains free and active** - it doesn't get deleted
+
+### **Add Your Custom Domain**
+
+1.  **Sign in to:** https://entra.microsoft.com with your `.onmicrosoft.com` account
+2.  **Navigate to:** `Identity > Domains > Custom domain names`
+3.  **Click:** "Add custom domain"
+4.  **Enter your domain:** `your-domain.com`
+5.  **Add DNS TXT record:**
+    *   Microsoft provides a TXT record to verify ownership
+    *   Add this to your domain's DNS (e.g., Cloudflare, GoDaddy)
+6.  **Click:** "Verify" after DNS propagates (5-30 minutes)
+7.  **Domain is now verified** and ready for user creation
+
+### **Create Your First Admin with Custom Domain**
+
+1.  **Navigate to:** `Identity > Users > All users`
+2.  **Click:** "New user" → "Create new user"
+3.  **Fill in:**
+    *   User principal name: `yourname@your-domain.com` (use your verified custom domain)
+    *   Display name: Your name
+    *   **Uncheck** "Auto-generate password" → Set a temporary password
+4.  **Assign Global Administrator role:**
+    *   Click "Assignments" tab
+    *   Click "Add role" → Select "Global Administrator"
+5.  **Create user**
+6.  **Send the temporary password** to yourself securely
+7.  **Sign out** and **sign back in** with your new custom domain account
+8.  **Change password** and **set up MFA** when prompted
+
+**Important Notes:**
+- The Microsoft password you set is **temporary** - after federation, users will authenticate via Google Workspace
+- You can create additional admins now, or wait until after SCIM provisioning (they'll sync automatically from Google Workspace)
+- Keep the `.onmicrosoft.com` account credentials in a secure location as a backup
+
+---
+
 ## **Prerequisites**
 
 1.  **Global Administrator Account:** An account with "Global Administrator" rights in your Microsoft Entra tenant (e.g., `admin@<your-tenant>.onmicrosoft.com`). Entra ID is **free** - no paid subscription required.
@@ -19,29 +78,52 @@ This guide details the one-time setup that an IT administrator must perform to f
 
 ### **Important: Set Up Multiple Administrators (Redundancy)**
 
-For business continuity, you should have at least 2-3 administrators in both systems:
+For business continuity, you should have at least 2-3 administrators in both systems.
+
+**Timing matters:** You have two options for adding additional admins:
+
+#### **Option A: Add Admins Before Federation (Manual)**
+
+If you need multiple Global Administrators to help with the initial federation setup:
 
 **Microsoft Entra:**
 1.  Go to `entra.microsoft.com`
 2.  Navigate to `Identity > Users > All users`
-3.  Select a user (or create a new one)
-4.  Click `Assigned roles` → `Add assignments`
-5.  Search for and select **"Global Administrator"**
-6.  Click **Add**
+3.  Click "New user" → "Create new user"
+4.  Create user with your custom domain (e.g., `alex@your-domain.com`)
+5.  Set a temporary password
+6.  Click `Assigned roles` → `Add assignments`
+7.  Search for and select **"Global Administrator"**
+8.  Click **Add**
+9.  Send the temporary password securely to the user
+
+**Note:** The Microsoft password is temporary - after federation, they'll authenticate via Google Workspace.
 
 **Google Workspace:**
 1.  Go to `admin.google.com`
 2.  Navigate to `Directory > Users`
-3.  Select a user
+3.  Create or select a user
 4.  Click `Admin roles and privileges`
 5.  Toggle **"Super Admin"** to ON
 6.  Click **Save**
+
+#### **Option B: Add Admins After Federation (Recommended)**
+
+After you complete Steps 1-5 (federation + SCIM provisioning):
+
+1.  **Create user in Google Workspace** (`admin.google.com > Directory > Users`)
+2.  **User automatically appears in Entra** (via SCIM sync, wait 5-10 minutes)
+3.  **Promote to Global Admin in Entra:**
+    *   Go to `entra.microsoft.com > Identity > Users`
+    *   Find the synced user
+    *   Click `Assigned roles` → `Add assignments` → "Global Administrator"
+4.  **Done** - they sign in with their Google Workspace password (no Microsoft password needed)
 
 **Recommended admin setup:**
 - At least 2 Super Admins in Google Workspace
 - At least 2 Global Administrators in Microsoft Entra
 - Use work email addresses (not personal ones)
-- Document admin accounts in a secure location
+- Keep the `.onmicrosoft.com` backup account credentials in a secure location
 
 ---
 
