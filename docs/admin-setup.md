@@ -159,12 +159,28 @@ After you complete Steps 1-5 (federation + SCIM provisioning):
 2.  **Add the App:**
     *   Click `Add app > Search for apps` and search for "Microsoft Office 365".
     *   Select the official app and proceed through the initial screens.
-3.  **Configure SAML Settings:**
-    *   Under "Service provider details", you'll see fields for ACS URL and Entity ID
-    *   Leave these at their default values (Microsoft's URLs)
-    *   Under "Attribute mapping", configure:
-        * **Name ID format**: Select "EMAIL"
-        * **Name ID**: Map to "Basic Information > Primary Email"
+3.  **Configure SAML Settings (Service Provider Details):**
+    
+    **On the "Service provider details" screen:**
+    
+    *   **ACS URL:** `https://login.microsoftonline.com/login.srf` (pre-filled, do not change)
+    *   **Entity ID:** `urn:federation:MicrosoftOnline` (pre-filled, do not change)
+    *   **Start URL (optional):** Leave blank or add domain hint (see below)
+    *   **Signed response:** Leave **unchecked**
+    
+    **Optional - Add Domain Hint to Start URL:**
+    If you want the "Test login" button to work properly, add:
+    ```
+    https://login.microsoftonline.com/login.srf?wa=wsignin1.0&whr=your-domain.com
+    ```
+    (Replace `your-domain.com` with your actual domain like `lgitech.net`)
+    
+    **On the "Attribute mapping" screen:**
+    
+    *   **Name ID format:** Select **"EMAIL"**
+    *   **Name ID:** Map to **"Basic Information > Primary Email"**
+    
+    Click **Continue**
 4.  **Download Metadata:**
     *   You will land on a page with "Google Identity Provider details". Click **Download Metadata**.
     *   The file will be named `GoogleIDPMetadata.xml`. Save it into the `domains/<your-domain.com>/` folder in this repository.
@@ -181,18 +197,36 @@ After you complete Steps 1-5 (federation + SCIM provisioning):
 **Human Action Required:**
 
 1.  **Navigate to Auto-Provisioning:**
-    *   In your "Microsoft Office 365" SAML app in Google Workspace, find the "Auto-provisioning" section and click `Configure auto-provisioning`.
-2.  **Authorize:**
-    *   You will be redirected to a Microsoft sign-in page. Sign in with your Global Administrator account.
-    *   On the "Permissions requested" screen, check "Consent on behalf of your organization" and click **Accept**.
-3.  **Configure Attribute Mappings:**
-    *   This is **different** from the SAML mapping - this is for auto-provisioning user accounts
-    *   **`userPrincipalName` (Required):** Map to `Contact Information > Email > Value`
-    *   **`onPremisesImmutableId` (Required):** Map to `Contact Information > Email > Value` (yes, same as above)
-    *   **Important:** Use "Email > Value", NOT "Is Primary" (which is a boolean)
-    *   Map other attributes like `givenName` and `surname` as needed
-4.  **Enable Provisioning:**
-    *   Define the scope (which users to sync) and enable auto-provisioning.
+    *   In your "Microsoft Office 365" SAML app in Google Workspace, find the "Auto-provisioning" section and click **Configure auto-provisioning**.
+2.  **Initial Attribute Mapping Screen (before authorization):**
+    *   The first page shows a single mapping (`Primary email → IDPEmail`)
+    *   Leave the default mapping as-is and click **Continue**
+3.  **Authorize (use `.onmicrosoft.com` admin if needed):**
+    *   You will be redirected to a Microsoft sign-in page
+    *   Sign in with a Global Administrator account **that is not yet federated** (your bootstrap `@<tenant>.onmicrosoft.com` admin works best)
+    *   On the "Permissions requested" screen, check **Consent on behalf of your organization** and click **Accept**
+    *   If you sign in with a freshly federated admin and see `invalid_scope`, retry using the `.onmicrosoft.com` admin
+4.  **Full Attribute Mapping (after authorization):**
+    *   After granting consent, Google shows the full attribute list
+    *   Configure the required mappings:
+        *   **`userPrincipalName` (Required):** `Contact Information > Email > Value`
+        *   **`onPremisesImmutableId` (Required):** `Contact Information > Email > Value`
+        *   **`mailNickname` (Required):** `Additional details > Alias name` (or map to a static expression)
+    *   Optionally map `givenName`, `surname`, `jobTitle`, etc.
+    *   Always choose **Email > Value** (not "Is Primary") for email fields
+    *   Click **Continue**
+5.  **Provisioning Scope (optional):**
+    *   Choose whether to sync all users or specific groups
+    *   For most small organizations, "Sync all users" is simplest
+    *   Click **Next**
+6.  **Deprovisioning Settings:**
+    *   Decide how to handle suspensions/deletions
+    *   Recommended: **Suspend** Microsoft accounts when a user is disabled, but do **not hard delete** (prevents accidental data loss)
+    *   Adjust timing as desired (24 hours default is fine)
+    *   Click **Finish**
+7.  **Enable Provisioning:**
+    *   Back on the Auto-provisioning overview, set the status to **ON**
+    *   Google will perform an initial sync; monitor the log for any errors
 
 ---
 
