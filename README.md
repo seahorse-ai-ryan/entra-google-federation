@@ -37,15 +37,13 @@ Enables users to sign into new Windows laptops with their Google Workspace crede
 ```
 ├── scripts/
 │   ├── apply-federation-simple.ps1    # Federation setup
-│   ├── stage1-install-essentials.ps1  # Chrome + Drive (all orgs)
-│   ├── stage2-template.ps1            # Template for org-specific apps
+│   ├── stage1-install-essentials.ps1  # Public single-stage app installer
 │   └── ...                            # Other utility scripts
 ├── docs/              # Complete documentation
 ├── domains/           # Domain-specific configs (gitignored)
 │   └── <your-domain>/
-│       ├── GoogleIDPMetadata.xml      # SAML metadata
-│       ├── stage2-install-apps.ps1    # Org-specific apps
-│       └── *.ps1                      # Custom configs
+│       ├── GoogleIDPMetadata.xml      # SAML metadata (private)
+│       └── IT/                        # Private instructions/configs for your org
 └── README.md          # This file
 ```
 

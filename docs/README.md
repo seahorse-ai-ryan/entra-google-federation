@@ -68,20 +68,18 @@ Once federation is configured, users can set up new laptops themselves following
 
 ### Application Installation
 
-After signing into Windows, users install applications with a single PowerShell command.
+After signing into Windows and setting up a PIN, users install applications with **one PowerShell command**. The script runs directly from GitHub, so they do not need to download anything beforehand.
 
-**📖 [Application Installation & Configuration Guide →](app-setup-guide.md)**
+```
+irm https://raw.githubusercontent.com/seahorse-ai-ryan/entra-google-federation/main/scripts/stage1-install-essentials.ps1 | iex
+```
 
-**Time Required:** 2 minutes of user time, 10-15 minutes of installation time
+- Installs: Chrome, Google Drive, WhatsApp Desktop, RustDesk, OBS Studio, Zoom, TeamViewer QuickSupport
+- Sets Chrome as the default browser
+- Retries Winget automatically if the App Installer service is still warming up
+- Shows a summary of which apps succeeded or failed
 
-**What Gets Installed:**
-- **Stage 1 (Universal):** Chrome + Google Drive
-- **Stage 2 (Organization-specific):** Custom applications such as:
-  - Communication tools (Slack, Teams, Zoom, WhatsApp)
-  - Development tools (VS Code, Git, Docker)
-  - Productivity software (Adobe Reader, Notion)
-  - Industry-specific applications
-  - Remote support tools (RustDesk, TeamViewer)
+If your organization has private configuration values (e.g., RustDesk server keys or VPN profiles), host those in a secure Google Drive folder and reference them in the welcome email or user instructions. Users can copy/paste the values after the main script finishes. See the [Application Installation & Configuration Guide](app-setup-guide.md) for tips on documenting those follow-up steps.
 
 ---
 

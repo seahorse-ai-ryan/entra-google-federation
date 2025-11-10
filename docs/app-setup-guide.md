@@ -2,17 +2,21 @@
 
 This is a **generic template** for application configuration. Your organization should create a customized version of this guide with your specific applications, server addresses, and support contacts.
 
-**For organizations using this project:** Create your own version of this guide in your `domains/[your-domain]/IT/` folder and store it in Google Drive alongside your Stage 2 installation script.
+**For organizations using this project:** Create your own version of this guide in your `domains/[your-domain]/IT/` folder and store it in Google Drive alongside any private configuration documents (for example, RustDesk server details).
 
-**Prerequisites:** Users must have completed the [Windows Setup Guide](windows-setup-guide.md) and run both Stage 1 and Stage 2 installation scripts.
+**Prerequisites:** Users must have completed the [Windows Setup Guide](windows-setup-guide.md) and run the single installation command:
+
+```
+irm https://raw.githubusercontent.com/seahorse-ai-ryan/entra-google-federation/main/scripts/stage1-install-essentials.ps1 | iex
+```
 
 ---
 
 ## Overview
 
-After running the Stage 1 and Stage 2 installation scripts, users will have applications installed but may need configuration guidance for:
+After running the installer, users will have applications installed but may still need configuration guidance for:
 - Signing into accounts
-- Connecting to custom servers
+- Connecting to custom servers (RustDesk, VPN, etc.)
 - Testing functionality
 - Creating shortcuts and pinning apps
 
@@ -55,22 +59,11 @@ After the automated installation completes, follow these steps to configure each
 
 **If Using a Custom RustDesk Server:**
 
-Your Stage 2 script can automatically configure RustDesk if you placed a `rustdesk-config.ps1` file in your Google Drive IT folder.
+Your public installer intentionally does **not** embed private credentials. Provide them in a secure Google Drive document so users can paste the values after the script finishes.
 
 1.  **Open RustDesk** from the Start menu
-2.  **Verify server connection:**
-    *   Check that the ID Server shows your team's server (not "hbbs.rustdesk.com" or blank)
-    *   If configured correctly, you'll see your custom server address
-3.  **Note your RustDesk ID** - support will use this to connect to your device
-4.  **Share your ID with IT** via your organization's preferred method
-
-**If RustDesk is NOT configured:**
-
-Users may need to manually configure the server:
-
-1.  Click the **three dots** next to your ID → **Settings** → **Network**
-2.  Click **"Unlock network settings"**
-3.  Enter your server details:
+2.  **Unlock network settings** (three dots → Settings → Network)
+3.  Paste the values from your private document:
     *   **ID Server:** `[your-server-address]`
     *   **Relay Server:** `[your-server-address]`
     *   **API Server:** `https://[your-server-address]`
@@ -152,7 +145,7 @@ If using RustDesk's public servers:
 
 ### 7. Other Applications
 
-**For additional applications in your Stage 2 script:**
+**For additional applications installed by the public script:**
 
 - Provide sign-in instructions (with Google SSO where available)
 - Note any custom server configurations needed
@@ -238,7 +231,7 @@ When creating your own version of this guide:
 
 1.  **Add your domain name** (`@your-domain.com`) where applicable
 2.  **Include custom server addresses** for RustDesk, VPNs, or other tools
-3.  **List organization-specific applications** from your Stage 2 script
+3.  **List organization-specific applications** that are installed by the script
 4.  **Provide IT contact information** (email, messaging app, phone)
 5.  **Include links to internal resources** (wikis, help desks, shared drives)
 6.  **Remove sections** for applications you don't use

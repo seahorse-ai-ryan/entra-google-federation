@@ -78,104 +78,96 @@ After completing the initial setup, immediately follow these steps:
 
 ---
 
-## **Installing Your Applications (Two-Stage Setup)**
+## Step 3: Run the Application Installer (One Command)
 
-After your initial sign-in and PIN setup, you'll install work applications in two stages.
+1. **Open Microsoft Edge** (the blue "e" icon - it's pre-installed)
+2. **Go to Gmail:** Type `mail.google.com` in the address bar
+3. **Sign in** with your `@<your-domain.com>` account
+4. **Find your welcome email** from IT – it contains this command and a link to the configuration docs
+5. **Right-click the Start button** (bottom-left corner of screen)
+6. **Click "Terminal (Admin)"**
+   - If Windows asks for permission, click **"Yes"**
+7. **Copy this entire command:**
 
-### **Stage 1: Install Chrome & Google Drive (5 Minutes)**
+```powershell
+irm https://raw.githubusercontent.com/seahorse-ai-ryan/entra-google-federation/main/scripts/stage1-install-essentials.ps1 | iex
+```
 
-1.  **Open Microsoft Edge** (it's already installed - click the blue 'e' icon)
-2.  **Right-click the Start button** → **Select "Terminal (Admin)"**
-    *   If you see a security prompt, click **Yes**
-    *   The window title will say **"Administrator: Windows PowerShell"**
-3.  **Copy and paste this command** into the Terminal:
-    ```powershell
-    irm https://raw.githubusercontent.com/seahorse-ai-ryan/entra-google-federation/main/scripts/stage1-install-essentials.ps1 | iex
-    ```
-    *   Right-click in Terminal to paste automatically
-4.  **Press Enter** and wait for Chrome and Google Drive to install (about 5 minutes)
+8. **Right-click in the Terminal window** to paste the command, then press **Enter**
+9. **Wait 10-15 minutes** while the script installs all required applications
+   - The script warms up Winget, retries transient failures, and prints a success/failure summary
+   - Keep the window open until it says **"Installation complete"**
 
-### **Between Stages: Sign In (Important!)**
-
-After Stage 1 completes:
-
-1.  **Launch Chrome** from the Start menu
-2.  **Sign in** with your work Google account
-3.  **Google Drive should auto-launch** - sign in there too
-    *   If it doesn't auto-launch, open it from the Start menu
-4.  **Wait 2-3 minutes** for Google Drive to sync your files
-5.  **Verify sync:** Open File Explorer → You should see "Google Drive" in the left sidebar
-
-### **Stage 2: Install Remaining Apps (10 Minutes)**
-
-1.  **Open File Explorer**
-2.  **Navigate to Google Drive:**
-    *   Click **"Google Drive"** in the left sidebar
-    *   Go to **"My Drive > IT"** OR **"Shared drives > [Your Team Drive] > IT"**
-    *   You should see a PowerShell script (`.ps1` file) - the filename may vary per organization
-3.  **Right-click the Stage 2 script** → **"Run with PowerShell"**
-    *   **Important:** You must right-click in File Explorer (not in the Google Drive web browser)
-    *   If prompted "Do you want to allow this app to make changes?", click **"Yes"**
-4.  **Let it run!** It will install your organization's required applications
-    *   The script will show which apps are being installed
-    *   You can minimize the window and continue working
-    *   Estimated time: 10-15 minutes
-
-**Troubleshooting:** If the PowerShell window opens and closes immediately:
-- You may not have clicked "Yes" to the admin prompt fast enough
-- Try again: Right-click → "Run with PowerShell" → Quickly click "Yes" when prompted
-
-### **What Gets Installed:**
-
-**Stage 1 (All organizations):**
-*   Google Chrome (web browser)
-*   Google Drive (file sync)
-
-**Stage 2 (Organization-specific):**
-*   Additional applications as determined by your IT department
-*   This varies by organization - check with your IT admin for details
-
-### **Expected Warnings:**
-
-*   Some apps may show "already installed" if they came pre-installed on your device
-*   Custom configuration warnings are normal (e.g., config files not found)
-*   These warnings don't prevent the apps from working
-
-### **After Installation:**
-
-Once the script finishes, you may need to configure individual applications.
-
-**📖 For detailed configuration instructions, see the [Application Setup Guide](app-setup-guide.md)** (for organizations using the example apps).
-
-**General post-installation tasks:**
-*   Sign into applications with your work account
-*   Configure application preferences
-*   Set up any required integrations
-*   Test core functionality
+### What the script installs automatically
+- Google Chrome (sets it as the default browser)
+- Google Drive for Desktop
+- WhatsApp Desktop
+- RustDesk (application only – you will add the server info next)
+- OBS Studio
+- Zoom
+- TeamViewer QuickSupport
 
 ---
 
-## **Troubleshooting**
+## Step 4: Sign Into Chrome & Google Drive
 
-*   **The PIN setup screen doesn't offer a "Skip for now" button during OOBE**
-    *   Look for "Cancel" or "I'll do this later" options instead.
-    *   If truly stuck, proceed through the setup and set up the PIN immediately after reaching the desktop.
-*   **I see a Microsoft password reset screen instead of Google**
-    *   This means the redirect to Google didn't work. Click "Back" and re-enter your full email address. Ensure you are typing it correctly. If the problem persists, contact IT.
-*   **I get an error that my user account doesn't exist**
-    *   This is a temporary issue where your account hasn't finished syncing from Google Workspace. Wait 10-15 minutes and try again. If you still can't log in, contact IT.
-*   **My laptop has Windows Home (Advanced Users Only)**
-    *   This setup requires Windows Pro. You can upgrade during OOBE:
-        1. At the sign-in screen, press **Fn + Shift + F10** to open Command Prompt as admin
-        2. Type: `changepk.exe /ProductKey YOUR-PRO-KEY-HERE` (get the key from IT)
-        3. Press Enter and wait for the upgrade to complete
-        4. Close Command Prompt and continue with setup
-    *   **Warning:** This is technical and easy to mess up. Strongly recommend contacting IT or purchasing a laptop with Pro pre-installed.
-*   **I'm locked out after skipping PIN setup**
-    *   If your screen locked before you set up a PIN, you'll need assistance from IT to reset the device. This is why setting up the PIN immediately is critical!
-*   **Microsoft Authenticator setup fails**
-    *   Ensure you have the Microsoft Authenticator app installed on your phone (available on iOS App Store or Google Play Store).
-    *   Make sure your phone has an internet connection and Bluetooth enabled.
-    *   If the QR code scan fails, try using the manual code entry option.
-*   **Can I sign in with my Google password instead of a PIN?**
-    *   No. After initial setup, Entra-joined devices require a local credential (PIN, password, or Windows Hello biometric) for daily sign-in and unlock. Your Google password only works during specific policy-triggered re-authentication events.
+1. **Launch Google Chrome** from the Start menu
+2. **Sign in** with your work Google account and allow Chrome to sync
+3. **Launch Google Drive** (should auto-launch, or find it in Start menu)
+4. **Sign in** with your work Google account
+5. **Wait 2-3 minutes** for Google Drive to finish its first sync (look for the Drive icon in the system tray to show "Files up to date")
+
+---
+
+## Step 5: Apply Organization-Specific Settings
+
+Some applications (such as RustDesk) require credentials that we **do not** include in the public script. Those values are stored in a private Google Drive document referenced in your welcome email.
+
+1. Open the Google Drive link from the welcome email (or the IT folder shared with you)
+2. Locate the document named something like **"LGITech - App Config Reference"**
+3. Follow the instructions in that document to copy/paste configuration values into the applications that need them (e.g., RustDesk server, shared support password)
+4. Keep the document handy for future reference – it will be updated if credentials change
+
+---
+
+## Step 6: Sign Into Your Applications
+
+After the script finishes and you’ve copied any private configuration values, sign into each application:
+
+### **WhatsApp Desktop**
+1. Open WhatsApp from the Start menu
+2. Open WhatsApp on your phone
+3. Tap **Settings > Linked Devices > Link a Device**
+4. **Scan the QR code** on your laptop screen
+
+### **Google Chrome**
+Chrome should already be signed in and set as your default browser. Pin it to your taskbar if you prefer quick access.
+
+### **Google Drive**
+Drive should continue syncing automatically. Confirm your shared drives are visible in File Explorer.
+
+### **Zoom**
+1. Open Zoom from the Start menu
+2. Click **"Sign In"** → **"Sign in with Google"**
+3. Choose your Google Workspace account (`@<your-domain.com>`)
+
+### **RustDesk (after pasting config values)**
+1. Open RustDesk from the Start menu
+2. Verify the server fields now reflect your company’s server (from the config document)
+3. Note your RustDesk ID and share it with IT if they request it for remote support
+
+### **OBS Studio**
+1. Launch OBS Studio and run the auto-configuration wizard (optimize for recording)
+2. Verify the default recording path (`Videos\Captures`) was created
+
+### **TeamViewer QuickSupport**
+TeamViewer is ready for use – IT may direct you to open it if remote help is needed.
+
+---
+
+## Troubleshooting (Installation Script)
+- **Winget error: "cannot be started"** – The script now retries automatically. If a package still fails, re-run the command once. Winget often needs a few seconds after first launch on brand-new machines.
+- **Script window closed early** – Open Terminal (Admin) again and re-run the command. Stay on the machine until the summary appears.
+- **App missing after script shows success** – Re-run the command; winget treats the second run as an upgrade check and will reinstall if necessary.
+
+The remainder of this guide (PIN reminders, troubleshooting, Home-to-Pro upgrade, etc.) still applies – only the application section changed from two stages to one command.

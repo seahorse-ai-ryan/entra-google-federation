@@ -33,14 +33,30 @@ As of May 2025, Microsoft requires a paid license to create new Entra tenants di
 ### **Add Your Custom Domain**
 
 1.  **Sign in to:** https://entra.microsoft.com with your `.onmicrosoft.com` account
-2.  **Navigate to:** `Identity > Domains > Custom domain names`
-3.  **Click:** "Add custom domain"
-4.  **Enter your domain:** `your-domain.com`
-5.  **Add DNS TXT record:**
-    *   Microsoft provides a TXT record to verify ownership
-    *   Add this to your domain's DNS (e.g., Cloudflare, GoDaddy)
-6.  **Click:** "Verify" after DNS propagates (5-30 minutes)
-7.  **Domain is now verified** and ready for user creation
+2.  **Navigate to:** `Identity > Settings > Domain names`
+3.  **Click:** "+ Add custom domain"
+4.  **Enter your domain:** `your-domain.com` (e.g., `lgitech.net`)
+5.  **Copy the TXT record Microsoft provides:**
+    *   Microsoft will show a verification screen with a TXT record
+    *   Example: `MS=ms82479095` (your value will be unique)
+    *   **Keep this browser tab open** - you'll need to click "Verify" after adding DNS
+6.  **Add DNS TXT record to your domain:**
+    *   Go to your DNS provider (Cloudflare, GoDaddy, Namecheap, etc.)
+    *   Add a new record:
+        * **Record Type:** TXT
+        * **Name:** `@` (or leave blank - some providers auto-fill your domain)
+        * **Value:** The `MS=ms...` string from Microsoft (paste exactly as shown)
+        * **TTL:** Auto or 3600
+    *   **Save** the DNS record
+7.  **Wait for DNS propagation:** 5-30 minutes (sometimes faster)
+    *   Test with: `nslookup -type=TXT lgitech.net` (replace with your domain)
+    *   You should see the MS= value in the response
+8.  **Return to Entra and click "Verify"**
+    *   If successful, your domain status changes to "Verified"
+    *   If it fails, wait longer and try again (DNS can be slow)
+9.  **Domain is now verified** and ready for user creation
+
+**Important:** This TXT record is ONLY for domain verification. You'll add different DNS records (CNAMEs) later in Step 6 for device enrollment.
 
 ### **Create Your First Admin with Custom Domain**
 
@@ -330,147 +346,91 @@ While devices are joined to Entra for authentication, you should also enable Goo
 1.  **Navigate to Windows Settings:**
     *   Go to `admin.google.com`
     *   Navigate to `Devices > Mobile and endpoints > Settings > Windows`
-2.  **Enable Device Management:**
-    *   Click **Windows management setup**
-    *   Select **"Enabled"** for "Windows device management"
-    *   Click **Save**
+2.  **Enable Device Management (WITHOUT GCPW):**
+    *   Under **"Windows management setup"** section:
+        * Set **"Windows device management"** to **"Enabled"**
+        * Click **Save**
+    *   Under **"Account settings"** section:
+        * **Leave "Administrative privileges" as "Not configured"**
+        * **Do NOT configure GCPW account settings** - Entra handles sign-in and admin rights
 3.  **Verify:** Devices will appear in Google Workspace admin after users sign in
 
-**Why enable this?**
+**Important - What NOT to Configure:**
+- ❌ **Do NOT enable "Account settings > Administrative privileges"** - This is for GCPW sign-in, which conflicts with Entra federation
+- ❌ **Do NOT set "User account type"** - Leave this section untouched
+- ✅ **ONLY enable "Windows device management"** - This tracks devices without changing how users sign in
+
+**Why enable device management?**
 - ✅ **Easier management:** Google Workspace admin console is simpler than Entra
 - ✅ **Remote wipe:** Ability to remotely wipe lost/stolen devices
 - ✅ **Device tracking:** See which devices users have signed into
 - ✅ **Redundancy:** Devices tracked in both Google Workspace AND Entra
+- ✅ **No Entra dependency:** Manage devices from Google Workspace, rarely need to touch Entra
 
 **Device Management Locations:**
-- **Google Workspace:** `admin.google.com > Devices > Mobile and endpoints > Devices`
-- **Microsoft Entra:** `entra.microsoft.com > Identity > Devices > All devices`
+- **Google Workspace (Primary):** `admin.google.com > Devices > Mobile and endpoints > Devices`
+- **Microsoft Entra (Backup):** `entra.microsoft.com > Identity > Devices > All devices`
 
-**Note:** Enabling Google device management does NOT interfere with Entra federation. Both systems can track devices simultaneously.
-
----
-
-## **Step 8: Deploy Application Installation Scripts**
-
-Users need access to the installation scripts after setting up Windows. You have two options:
-
-### **Host Stage 1 Script Publicly**
-
-Host the Stage 1 script on GitHub (public repo) or a public web server so users can access it via Edge during initial setup.
-
-**Steps:**
-1.  **Create a public GitHub repository** OR use an existing one
-2.  **Upload `scripts/stage1-install-essentials.ps1`** to the repo
-3.  **Get the raw file URL:**
-    *   On GitHub: Click the file → Click "Raw" button → Copy URL
-    *   Example: `https://raw.githubusercontent.com/your-org/your-repo/main/stage1-install-essentials.ps1`
-4.  **Provide this URL to users** (they'll use Edge to access it during initial setup)
-
-### **Create Your Stage 2 Script and IT Folder**
-
-The Stage 2 script is organization-specific and should be organized in your domain's IT folder.
-
-**Steps:**
-1.  **Create your domain-specific IT folder:**
-    *   In your local copy of this repo: `domains/[your-domain]/IT/`
-    *   This folder is gitignored for security (keeps sensitive configs private)
-2.  **Copy the template and customize:**
-    *   Use `scripts/stage2-template.ps1` as a starting point
-    *   Save as `domains/[your-domain]/IT/stage2-install-apps.ps1`
-    *   Edit the `$appsToInstall` list to include your required applications
-    *   Find Winget package IDs using: `winget search "app name"`
-    *   Add any custom post-installation configuration sections
-3.  **Create your user documentation:**
-    *   Copy `docs/app-setup-guide.md` as a template
-    *   Customize with your domain (`@your-domain.com`), server addresses, support contacts
-    *   Save as `domains/[your-domain]/IT/app-setup-guide-[your-domain].md`
-4.  **Upload entire IT folder to Google Drive:**
-    *   **Option A: My Drive (Smaller Teams)**
-        * Create: `My Drive > IT`
-        * Upload your Stage 2 script, app setup guide, and config files here
-    *   **Option B: Shared Drive (Recommended for Teams)**
-        * Create or use an existing shared drive (any name works)
-        * Create an `IT` folder inside that shared drive
-        * Example: `Shared drives > Company General > IT`
-        * Upload your Stage 2 script, app setup guide, and config files here
-    *   **Folder name flexibility:** The Stage 2 script searches for `IT` folders in:
-        * `Google Drive\My Drive\IT\` 
-        * `Google Drive\Shared drives\*\IT\` (searches across ALL shared drives)
-        * You can name your shared drive anything you want - the script will find the IT folder
-5.  **Set permissions:**
-    *   Ensure all users have **"Viewer"** or **"Commenter"** access
-    *   For shared drives, verify the drive is shared with your organization
-6.  **Test:** Sign in as a test user and verify they can:
-    *   Open File Explorer and see "Google Drive" in the left sidebar
-    *   Navigate to the IT folder in File Explorer (not web browser)
-    *   Right-click the Stage 2 script → "Run with PowerShell" → Approve admin prompt
-    *   Open the app setup guide (see note below about file formats)
-
-**Important:** Users MUST access the script through File Explorer's Google Drive folder (synced locally), NOT through the Google Drive web interface. The web interface doesn't provide the "Run with PowerShell" context menu option.
-
-**Your IT folder structure:**
-```
-domains/your-domain.com/IT/
-  ├── stage2-install-apps.ps1 (your org's app list)
-  ├── app-setup-guide-[your-domain].md (customized user docs)
-  ├── rustdesk-config.ps1 (if using custom server)
-  └── README.md (explains folder contents)
-```
-
-**Example applications organizations commonly install:**
-- Communication: Slack, Microsoft Teams, Discord
-- Development: VS Code, Git, Docker
-- Productivity: Notion, Evernote, Adobe Reader
-- Security: VPN clients, password managers
-- Industry-specific: AutoCAD, MATLAB, medical software, etc.
-
-### **User Documentation Format Recommendations**
-
-**Problem:** Markdown (`.md`) files don't render nicely in Google Drive's preview - users see raw markdown syntax.
-
-**Better Options:**
-
-1.  **Google Docs (Recommended)**
-    *   Create a Google Doc version of your app setup guide
-    *   Advantage: Native formatting, easy to read in Drive, can comment/suggest edits
-    *   Can still keep the `.md` version in your local repo for version control
-    *   Export `.md` → Import to Google Docs → Share link with users
-
-2.  **PDF**
-    *   Convert your markdown to PDF before uploading
-    *   Tools: Pandoc, Typora, or `File > Export as PDF` in most markdown editors
-    *   Advantage: Consistent formatting, widely viewable
-    *   Disadvantage: Harder to update (requires re-export and re-upload)
-
-3.  **HTML** 
-    *   Convert markdown to HTML and upload as `.html`
-    *   Google Drive preview renders HTML reasonably well
-    *   Tools: Pandoc, markdown editors with HTML export
-
-**Recommended Workflow:**
-1.  Maintain your app setup guide as `.md` in your local repo (version control)
-2.  When deploying to Google Drive, convert to Google Docs or PDF
-3.  Share the Google Docs/PDF link with users (better viewing experience)
-4.  Keep both versions: `.md` in repo, Google Doc/PDF in Drive
+**Note:** This device tracking does NOT interfere with Entra federation. Users still sign in via Entra (using Google credentials), but devices are tracked in both systems for redundancy.
 
 ---
 
-## **Step 9: (Optional) Add Custom Configuration Files**
+## **Step 8: Prepare the Application Installer Workflow**
 
-If your applications require custom configuration (e.g., RustDesk server settings, VPN configs, proxy settings), add them to your IT folder.
+Users install everything with **one PowerShell command**. The public script lives in this repository (`scripts/stage1-install-essentials.ps1`) so it can be run directly from GitHub. Your job is to make sure the command and any follow-up instructions reach users in the welcome email.
+
+### 8.1 Host the Public Script (already done in this repo)
+- Keep `scripts/stage1-install-essentials.ps1` in a public GitHub repository
+- Users run it with:
+  ```powershell
+  irm https://raw.githubusercontent.com/seahorse-ai-ryan/entra-google-federation/main/scripts/stage1-install-essentials.ps1 | iex
+  ```
+- The script installs Chrome, Google Drive, WhatsApp Desktop, RustDesk (binary only), OBS Studio, Zoom, and TeamViewer QuickSupport
+- It sets Chrome as the default browser and retries Winget automatically if the App Installer service is still warming up
+
+### 8.2 Provide Private Configuration Separately
+Sensitive data (e.g., RustDesk server URL, public key, shared support password) should **not** live in the public script. Store those details in a private Google Drive document inside your `IT` folder. Reference that document in the welcome email and end-user instructions so users can paste the values after the installer finishes.
+
+Recommended folder structure in Google Drive:
+```
+IT/
+  ├── LGITech App Config Reference (Google Doc or PDF)
+  └── Other internal guides
+```
+
+### 8.3 Update the Welcome Email
+Use the template in `domains/<your-domain>/IT/welcome-email-template.md` as a starting point. Make sure it includes:
+- The copy/paste PowerShell command shown above
+- A link to the Google Drive IT folder (read-only for users)
+- A reminder to open the private configuration document after the script finishes
+
+### 8.4 Test the Flow End-to-End
+1. Create a new test user in Google Workspace
+2. Confirm the welcome email arrives with the command and Drive link
+3. On a fresh Windows device, follow the user guide:
+   - Run the PowerShell command from Edge (Terminal as Administrator)
+   - After it completes, open the configuration document and apply any private settings
+4. Verify all required applications are installed and functional
+
+This streamlined process eliminates the old two-stage workflow and keeps sensitive data out of the public installer while still giving users a simple, repeatable setup experience.
+
+---
+
+## **Step 9: (Optional) Maintain Private Configuration References**
+
+If any applications require credentials or settings that should not live in the public installer (e.g., RustDesk server settings, VPN profiles, license keys), store them in your private Google Drive IT folder.
 
 **Example: RustDesk with Custom Server**
 
-1.  **Create `domains/[your-domain]/IT/rustdesk-config.ps1`:**
-    ```powershell
-    $RustDeskServer = "your-server.ddns.net"
-    $RustDeskKey = "your-public-key-here="
-    $RustDeskPassword = "your-support-password"
-    ```
-2.  **Upload to Google Drive IT folder** alongside your Stage 2 script
-3.  **The Stage 2 template auto-loads it** from Google Drive and configures RustDesk
+1. Create a document in the IT folder (Google Doc or PDF) named something like **"RustDesk Support Settings"**
+2. Include the values users must paste after the installer runs:
+   - Server address
+   - Public key
+   - Shared support password or PIN
+3. Reference this document in the welcome email and user instructions so they know where to copy the values
+4. Update the document whenever credentials change; users can refer back without downloading a new script
 
-**Applies to any custom configs:** Use this pattern for VPN servers, proxy settings, license keys, or any org-specific configuration that shouldn't be in public scripts.
+**Applies to any custom configs:** VPN servers, proxy settings, internal URLs, license keys, or anything else that should remain private. Keep those details in the IT folder rather than in the GitHub repository.
 
 ---
 
