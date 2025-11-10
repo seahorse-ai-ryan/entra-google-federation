@@ -1,101 +1,143 @@
 #Requires -RunAsAdministrator
 
-<#
+<#$
 .SYNOPSIS
-    Stage 1: Installs Chrome and Google Drive to enable access to secure resources.
+    Single-stage installation script for LGITech.net – installs all required applications in one run.
 
 .DESCRIPTION
-    This is the first stage of the deployment process. It installs only Chrome and Google Drive,
-    which allows users to sign in and access the second stage script from Google Drive.
-    
-    Users can run this script directly from the OOBE terminal using Edge (which is pre-installed).
+    This script is intended to be run via:
+
+        irm https://raw.githubusercontent.com/seahorse-ai-ryan/entra-google-federation/main/scripts/stage1-install-essentials.ps1 | iex
+
+    It will install the following applications using winget:
+      - Google Chrome (and set it as the default browser)
+      - Google Drive
+      - WhatsApp Desktop
+      - RustDesk
+      - OBS Studio
+      - Zoom
+      - TeamViewer QuickSupport
+
+    No private configuration is embedded. RustDesk credentials should be provided to the user separately.
 #>
 
 Write-Host "=======================================" -ForegroundColor Cyan
-Write-Host "  Stage 1: Essential Applications" -ForegroundColor Cyan
+Write-Host "  LGITech Application Installation" -ForegroundColor Cyan
 Write-Host "=======================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "This script will install:" -ForegroundColor Yellow
+Write-Host "This script installs everything you need in one pass:" -ForegroundColor Yellow
 Write-Host "  - Google Chrome (web browser)" -ForegroundColor White
 Write-Host "  - Google Drive (file sync)" -ForegroundColor White
+Write-Host "  - WhatsApp Desktop" -ForegroundColor White
+Write-Host "  - RustDesk (remote support)" -ForegroundColor White
+Write-Host "  - OBS Studio (screen recording)" -ForegroundColor White
+Write-Host "  - Zoom (video calls)" -ForegroundColor White
+Write-Host "  - TeamViewer QuickSupport" -ForegroundColor White
 Write-Host ""
-Write-Host "After these install, you'll:" -ForegroundColor Yellow
-Write-Host "  1. Sign into Chrome with your work account" -ForegroundColor White
-Write-Host "  2. Sign into Google Drive with your work account" -ForegroundColor White
-Write-Host "  3. Wait for Drive to sync" -ForegroundColor White
-Write-Host "  4. Run Stage 2 script from your Google Drive" -ForegroundColor White
-Write-Host ""
-Write-Host "Estimated time: 5 minutes" -ForegroundColor Yellow
+Write-Host "Estimated time: 15-20 minutes" -ForegroundColor Yellow
+Write-Host "You can minimize this window while installs run." -ForegroundColor Green
 Write-Host ""
 
-# Function to install an app with error handling
 function Install-WingetApp {
     param(
         [string]$AppName,
         [string]$WingetId
     )
-    
+
     Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Installing $AppName..." -ForegroundColor Cyan
-    
     try {
-        $result = winget install --id $WingetId --silent --accept-source-agreements --accept-package-agreements 2>&1
-        
+        $null = winget install --id $WingetId --silent --accept-source-agreements --accept-package-agreements 2>&1
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "  ✓ $AppName installed successfully" -ForegroundColor Green
+            Write-Host "  ✓ $AppName installed" -ForegroundColor Green
             return $true
         } else {
-            Write-Host "  ✗ $AppName installation failed (Exit code: $LASTEXITCODE)" -ForegroundColor Red
+            Write-Host "  ✗ $AppName failed (exit code $LASTEXITCODE)" -ForegroundColor Red
             return $false
         }
     } catch {
-        Write-Host "  ✗ $AppName installation failed: $_" -ForegroundColor Red
+        Write-Host "  ✗ $AppName failed: $_" -ForegroundColor Red
         return $false
     }
 }
 
-# Track results
-$results = @{}
+$appResults = @{}
 
-# Install Chrome
-$results['Chrome'] = Install-WingetApp -AppName "Google Chrome" -WingetId "Google.Chrome"
-Start-Sleep -Seconds 3
-
-# Install Google Drive
-$results['Drive'] = Install-WingetApp -AppName "Google Drive" -WingetId "Google.GoogleDrive"
-Start-Sleep -Seconds 3
+$appResults['Chrome']     = Install-WingetApp -AppName "Google Chrome" -WingetId "Google.Chrome"
+Start-Sleep -Seconds 2
+$appResults['Drive']      = Install-WingetApp -AppName "Google Drive" -WingetId "Google.GoogleDrive"
+Start-Sleep -Seconds 2
+$appResults['WhatsApp']   = Install-WingetApp -AppName "WhatsApp Desktop" -WingetId "9NKSQGP7F2NH"
+Start-Sleep -Seconds 2
+$appResults['RustDesk']   = Install-WingetApp -AppName "RustDesk" -WingetId "RustDesk.RustDesk"
+Start-Sleep -Seconds 2
+$appResults['OBS']        = Install-WingetApp -AppName "OBS Studio" -WingetId "OBSProject.OBSStudio"
+Start-Sleep -Seconds 2
+$appResults['Zoom']       = Install-WingetApp -AppName "Zoom" -WingetId "Zoom.Zoom"
+Start-Sleep -Seconds 2
+$appResults['TeamViewer'] = Install-WingetApp -AppName "TeamViewer QuickSupport" -WingetId "TeamViewer.TeamViewer.Host"
+Start-Sleep -Seconds 2
 
 Write-Host ""
 Write-Host "=======================================" -ForegroundColor Cyan
-Write-Host "  Installation Complete!" -ForegroundColor Cyan
+Write-Host "  Post-Installation Tasks" -ForegroundColor Cyan
 Write-Host "=======================================" -ForegroundColor Cyan
 Write-Host ""
 
-if ($results['Chrome']) {
-    Write-Host "✓ Chrome installed" -ForegroundColor Green
-} else {
-    Write-Host "✗ Chrome failed" -ForegroundColor Red
+if ($appResults['Chrome']) {
+    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Setting Google Chrome as default browser..." -ForegroundColor Cyan
+    try {
+        Start-Process -FilePath "powershell.exe" -ArgumentList "-Command `"Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice' -Name 'Progid' -Value 'ChromeHTML' -Force`"" -Verb RunAs -WindowStyle Hidden -ErrorAction Stop
+        Start-Process -FilePath "powershell.exe" -ArgumentList "-Command `"Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice' -Name 'Progid' -Value 'ChromeHTML' -Force`"" -Verb RunAs -WindowStyle Hidden -ErrorAction Stop
+        Write-Host "  ✓ Chrome set as default browser (best effort)" -ForegroundColor Green
+    } catch {
+        Write-Host "  ⚠ Could not set Chrome as default automatically: $_" -ForegroundColor Yellow
+        Write-Host "    You can set it manually under Settings > Apps > Default apps." -ForegroundColor Gray
+    }
 }
 
-if ($results['Drive']) {
-    Write-Host "✓ Google Drive installed" -ForegroundColor Green
-} else {
-    Write-Host "✗ Google Drive failed" -ForegroundColor Red
+if ($appResults['OBS']) {
+    try {
+        $capturesPath = "$env:USERPROFILE\Videos\Captures"
+        if (-not (Test-Path $capturesPath)) {
+            New-Item -ItemType Directory -Path $capturesPath -Force | Out-Null
+            Write-Host "  ✓ Created Captures folder at $capturesPath" -ForegroundColor Green
+        }
+    } catch {
+        Write-Host "  ⚠ Could not create Captures folder: $_" -ForegroundColor Yellow
+    }
 }
 
 Write-Host ""
 Write-Host "=======================================" -ForegroundColor Cyan
-Write-Host "  NEXT STEPS - IMPORTANT!" -ForegroundColor Cyan
+Write-Host "  Installation Summary" -ForegroundColor Cyan
 Write-Host "=======================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "1. Launch Chrome from the Start menu" -ForegroundColor Yellow
-Write-Host "2. Sign in with your work Google account" -ForegroundColor Yellow
-Write-Host "3. Google Drive should auto-launch - sign in there too" -ForegroundColor Yellow
-Write-Host "   (If it doesn't auto-launch, open it from Start menu)" -ForegroundColor Gray
-Write-Host "4. Wait 2-3 minutes for Google Drive to sync" -ForegroundColor Yellow
-Write-Host "5. Open File Explorer and navigate to:" -ForegroundColor Yellow
-Write-Host "   'Google Drive > My Drive' or 'Google Drive > Shared drives'" -ForegroundColor White
-Write-Host "6. Find the Stage 2 script and run it" -ForegroundColor Yellow
+
+foreach ($key in $appResults.Keys | Sort-Object) {
+    if ($appResults[$key]) {
+        Write-Host "✓ $key" -ForegroundColor Green
+    } else {
+        Write-Host "✗ $key" -ForegroundColor Red
+    }
+}
+
+$successCount = ($appResults.Values | Where-Object { $_ }).Count
 Write-Host ""
+Write-Host "Installed: $successCount/$($appResults.Count) applications" -ForegroundColor $(if ($successCount -eq $appResults.Count) { "Green" } else { "Yellow" })
+
+Write-Host ""
+Write-Host "=======================================" -ForegroundColor Cyan
+Write-Host "  Next Steps for the User" -ForegroundColor Cyan
+Write-Host "=======================================" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "1. Launch Chrome from the Start menu and sign in with your LGITech account." -ForegroundColor Yellow
+Write-Host "2. Launch Google Drive (should auto-start) and sign in to begin syncing." -ForegroundColor Yellow
+Write-Host "3. Open WhatsApp Desktop and link it with your phone (Settings -> Linked Devices)." -ForegroundColor Yellow
+Write-Host "4. Sign into Zoom with 'Sign in with Google'." -ForegroundColor Yellow
+Write-Host "5. Launch RustDesk and share your ID with IT for remote support." -ForegroundColor Yellow
+Write-Host "6. OBS Studio and TeamViewer QuickSupport are ready if needed." -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Installation complete!" -ForegroundColor Green
 Write-Host "Press any key to close this window..." -ForegroundColor Gray
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 
