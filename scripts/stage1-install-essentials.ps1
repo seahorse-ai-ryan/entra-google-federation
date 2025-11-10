@@ -38,27 +38,80 @@ Write-Host "Estimated time: 15-20 minutes" -ForegroundColor Yellow
 Write-Host "You can minimize this window while installs run." -ForegroundColor Green
 Write-Host ""
 
+function Ensure-WingetReady {
+    param(
+        [int]$MaxAttempts = 5,
+        [int]$DelaySeconds = 5
+    )
+
+    for ($attempt = 1; $attempt -le $MaxAttempts; $attempt++) {
+        try {
+            winget --info > $null 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "[Winget] Ready (attempt $attempt)." -ForegroundColor Green
+                try {
+                    winget source update > $null 2>&1
+                } catch {
+                    Write-Host "[Winget] Source update skipped: $_" -ForegroundColor Yellow
+                }
+                return
+            }
+        } catch {
+            # ignore and retry
+        }
+
+        if ($attempt -lt $MaxAttempts) {
+            Write-Host "[Winget] Preparing installer (attempt $attempt/$MaxAttempts) ..." -ForegroundColor Yellow
+            Start-Sleep -Seconds $DelaySeconds
+        }
+    }
+
+    Write-Host "[Winget] Continuing even though initialization may be incomplete." -ForegroundColor Yellow
+}
+
 function Install-WingetApp {
     param(
         [string]$AppName,
-        [string]$WingetId
+        [string]$WingetId,
+        [int]$MaxRetries = 2,
+        [int]$RetryDelaySeconds = 6
     )
 
-    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Installing $AppName..." -ForegroundColor Cyan
-    try {
-        $null = winget install --id $WingetId --silent --accept-source-agreements --accept-package-agreements 2>&1
-        if ($LASTEXITCODE -eq 0) {
+    for ($attempt = 1; $attempt -le $MaxRetries; $attempt++) {
+        Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Installing $AppName... (attempt $attempt/$MaxRetries)" -ForegroundColor Cyan
+        try {
+            $result = winget install --id $WingetId --silent --accept-source-agreements --accept-package-agreements 2>&1
+            $exitCode = $LASTEXITCODE
+        } catch {
+            $result = $_.Exception.Message
+            $exitCode = 1
+        }
+
+        if ($exitCode -eq 0) {
             Write-Host "  ✓ $AppName installed" -ForegroundColor Green
             return $true
-        } else {
-            Write-Host "  ✗ $AppName failed (exit code $LASTEXITCODE)" -ForegroundColor Red
-            return $false
         }
-    } catch {
-        Write-Host "  ✗ $AppName failed: $_" -ForegroundColor Red
+
+        $resultText = $result -join "\n"
+        $needsRetry = ($attempt -lt $MaxRetries) -and ($resultText -match "cannot be started" -or $resultText -match "failed to run" -or $exitCode -eq 3221225781)
+
+        if ($needsRetry) {
+            Write-Host "  ⚠ $AppName install failed due to winget startup. Retrying after $RetryDelaySeconds seconds..." -ForegroundColor Yellow
+            Start-Sleep -Seconds $RetryDelaySeconds
+            continue
+        }
+
+        Write-Host "  ✗ $AppName installation failed (exit code $exitCode)." -ForegroundColor Red
+        if ($resultText) {
+            Write-Host "    Details: $resultText" -ForegroundColor Gray
+        }
         return $false
     }
+
+    return $false
 }
+
+Ensure-WingetReady
 
 $appResults = @{}
 
