@@ -74,13 +74,26 @@ function Install-WingetApp {
         [string]$AppName,
         [string]$WingetId,
         [int]$MaxRetries = 2,
-        [int]$RetryDelaySeconds = 6
+        [int]$RetryDelaySeconds = 6,
+        [string]$Source
     )
 
     for ($attempt = 1; $attempt -le $MaxRetries; $attempt++) {
         Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Installing $AppName... (attempt $attempt/$MaxRetries)" -ForegroundColor Cyan
         try {
-            $result = winget install --id $WingetId --silent --accept-source-agreements --accept-package-agreements 2>&1
+            $args = @(
+                'install',
+                '--id', $WingetId,
+                '-e',
+                '--silent',
+                '--accept-source-agreements',
+                '--accept-package-agreements'
+            )
+            if ($Source) {
+                $args += @('--source', $Source)
+            }
+
+            $result = winget @args 2>&1
             $exitCode = $LASTEXITCODE
         } catch {
             $result = $_.Exception.Message
@@ -111,23 +124,62 @@ function Install-WingetApp {
     return $false
 }
 
+function Install-ChromeWithFallback {
+    Write-Host "[$(Get-Date -Format 'HH:mm:ss')] Installing Google Chrome..." -ForegroundColor Cyan
+    $installed = Install-WingetApp -AppName "Google Chrome" -WingetId "Google.Chrome" -MaxRetries 3 -RetryDelaySeconds 10
+    if ($installed) {
+        return $true
+    }
+
+    Write-Host "  ⚠ Winget Chrome install failed. Attempting MSI fallback..." -ForegroundColor Yellow
+    $chromeMsiUrl = "https://dl.google.com/dl/chrome/install/googlechromestandaloneenterprise64.msi"
+    $tempMsi = Join-Path $env:TEMP "chrome_enterprise.msi"
+
+    try {
+        try {
+            Invoke-WebRequest -UseBasicParsing -Uri $chromeMsiUrl -OutFile $tempMsi -ErrorAction Stop
+        } catch {
+            # Fallback to curl if Invoke-WebRequest is blocked
+            & curl.exe -L $chromeMsiUrl -o $tempMsi 2>$null | Out-Null
+        }
+
+        if (-not (Test-Path $tempMsi)) {
+            throw "Chrome MSI download failed."
+        }
+
+        $proc = Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `"$tempMsi`" /qn /norestart" -Wait -PassThru
+        if ($proc.ExitCode -eq 0) {
+            Write-Host "  ✓ Google Chrome installed via MSI fallback" -ForegroundColor Green
+            return $true
+        } else {
+            Write-Host "  ✗ Chrome MSI install failed with exit code $($proc.ExitCode)" -ForegroundColor Red
+            return $false
+        }
+    } catch {
+        Write-Host "  ✗ Chrome MSI fallback failed: $_" -ForegroundColor Red
+        return $false
+    } finally {
+        try { if (Test-Path $tempMsi) { Remove-Item $tempMsi -Force -ErrorAction SilentlyContinue } } catch {}
+    }
+}
+
 Ensure-WingetReady
 
 $appResults = @{}
 
-$appResults['Chrome']     = Install-WingetApp -AppName "Google Chrome" -WingetId "Google.Chrome"
+$appResults['Chrome']     = Install-ChromeWithFallback
 Start-Sleep -Seconds 2
-$appResults['Drive']      = Install-WingetApp -AppName "Google Drive" -WingetId "Google.GoogleDrive"
+$appResults['Drive']      = Install-WingetApp -AppName "Google Drive" -WingetId "Google.GoogleDrive" -MaxRetries 3 -RetryDelaySeconds 10
 Start-Sleep -Seconds 2
-$appResults['WhatsApp']   = Install-WingetApp -AppName "WhatsApp Desktop" -WingetId "9NKSQGP7F2NH"
+$appResults['WhatsApp']   = Install-WingetApp -AppName "WhatsApp Desktop" -WingetId "9NKSQGP7F2NH" -Source "msstore" -MaxRetries 3 -RetryDelaySeconds 10
 Start-Sleep -Seconds 2
-$appResults['RustDesk']   = Install-WingetApp -AppName "RustDesk" -WingetId "RustDesk.RustDesk"
+$appResults['RustDesk']   = Install-WingetApp -AppName "RustDesk" -WingetId "RustDesk.RustDesk" -MaxRetries 3 -RetryDelaySeconds 10
 Start-Sleep -Seconds 2
-$appResults['OBS']        = Install-WingetApp -AppName "OBS Studio" -WingetId "OBSProject.OBSStudio"
+$appResults['OBS']        = Install-WingetApp -AppName "OBS Studio" -WingetId "OBSProject.OBSStudio" -MaxRetries 3 -RetryDelaySeconds 10
 Start-Sleep -Seconds 2
-$appResults['Zoom']       = Install-WingetApp -AppName "Zoom" -WingetId "Zoom.Zoom"
+$appResults['Zoom']       = Install-WingetApp -AppName "Zoom" -WingetId "Zoom.Zoom" -MaxRetries 3 -RetryDelaySeconds 10
 Start-Sleep -Seconds 2
-$appResults['TeamViewer'] = Install-WingetApp -AppName "TeamViewer QuickSupport" -WingetId "TeamViewer.TeamViewer.Host"
+$appResults['TeamViewer'] = Install-WingetApp -AppName "TeamViewer QuickSupport" -WingetId "TeamViewer.TeamViewer.Host" -MaxRetries 3 -RetryDelaySeconds 10
 Start-Sleep -Seconds 2
 
 Write-Host ""
